@@ -6,13 +6,14 @@ An [Agent Plugin](https://agent-plugins.org/) that bundles skills for planning a
 |---|---|---|
 | `ado-implement` | Takes an Azure DevOps work item to a pull request, interviewing you at every gate | Automatic when you mention ADO / work items, or `/ado-implement` |
 | `pr` | Writes a PR body: summary visual, before/after evidence, merge danger | Automatic when writing a PR body, or `/pr` |
+| `pr-review` | Interview-driven PR review, from either side: address the comments on your PR until every thread is settled, or review someone else's PR and post comments and a vote | Automatic when you mention PR comments or reviewing a PR, or `/pr-review` |
 | `grilling` | Stress-tests a plan or decision, one round of questions at a time | Automatic on "grill" phrases, or `/grilling` |
 | `grill-me` | A relentless interview to sharpen a plan or design | `/grill-me` |
 | `teach` | Teaches a new concept inside your workspace | `/teach` |
 
 | Agent | What it does | Invocation |
 |---|---|---|
-| `PR Reviewer` | Read-only review of a branch against its acceptance criteria, test layers, and repo standards; returns a findings table | Subagent of `ado-implement` |
+| `PR Reviewer` | Read-only review of a branch or PR against its spec, test layers, and repo standards; returns a findings table | Subagent of `ado-implement` and `pr-review` |
 
 It also connects the [hosted Azure DevOps MCP server](https://learn.microsoft.com/azure/devops/mcp-server/remote-mcp-server), limited to work-item, iteration, and repository tools.
 
@@ -30,6 +31,15 @@ pick interview mode   grill (decisions) or teach (decisions + why + recall)
   review              PR Reviewer subagent (read-only) -> findings -> fixes
   pull request        body via `pr`, pushed and linked on your yes
   hand back           evidence per criterion, optional ADO state/comment
+```
+
+After the PR opens, `pr-review` takes over:
+
+```text
+author     collect open threads -> triage (fix / answer / push back / defer)
+           -> fix test-first -> reply + resolve -> repeat until all settled
+reviewer   pick PR -> check out head -> PR Reviewer subagent -> verify findings
+           -> choose what to post + vote -> post on your yes -> re-review later
 ```
 
 Each step ends at a gate where you decide; nothing is pushed or written to Azure DevOps without your yes. Best practices (descriptive work items, small PRs, branch and commit hygiene) are checked along the way: see [PRACTICES.md](skills/ado-implement/PRACTICES.md) and [TESTING.md](skills/ado-implement/TESTING.md).

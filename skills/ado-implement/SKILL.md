@@ -116,4 +116,4 @@ Done when the PR URL is returned and the item is linked to it.
 
 ## 10. Hand back
 
-Report the branch, commits, PR URL, each acceptance criterion with its evidence, and anything deferred or split off. Then offer the remaining ADO writes (state change, a comment with the PR link and evidence summary) and run only those the user approves. In teach mode, close with a recap of the practices applied and the recall questions the user missed.
+Report the branch, commits, PR URL, each acceptance criterion with its evidence, and anything deferred or split off. Then offer the remaining ADO writes (state change, a comment with the PR link and evidence summary) and run only those the user approves. When reviewers comment, the `pr-review` skill works the threads from the author's side. In teach mode, close with a recap of the practices applied and the recall questions the user missed.
