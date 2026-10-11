@@ -1,0 +1,12 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "agentic-dev-kit",
+  "version": "0.1.0",
+  "description": "Skills for planning and shipping work with AI agents: stress-test plans, learn new concepts, and implement Azure DevOps work items end to end.",
+  "author": {
+    "name": "puttagunta"
+  },
+  "repository": "https://github.com/puttagunta/agentic-dev-kit",
+  "license": "MIT",
+  "keywords": ["azure-devops", "work-items", "planning", "learning", "skills"]
+}

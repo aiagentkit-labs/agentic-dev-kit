@@ -1,0 +1,14 @@
+{
+  "name": "agentic-dev-kit",
+  "description": "Skills for planning and shipping work with AI agents.",
+  "owner": {
+    "name": "puttagunta"
+  },
+  "plugins": [
+    {
+      "name": "agentic-dev-kit",
+      "source": "./",
+      "description": "Stress-test plans, learn new concepts, and implement Azure DevOps work items end to end."
+    }
+  ]
+}
