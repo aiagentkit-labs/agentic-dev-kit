@@ -10,6 +10,10 @@ An [Agent Plugin](https://agent-plugins.org/) that bundles skills for planning a
 | `grill-me` | A relentless interview to sharpen a plan or design | `/grill-me` |
 | `teach` | Teaches a new concept inside your workspace | `/teach` |
 
+| Agent | What it does | Invocation |
+|---|---|---|
+| `PR Reviewer` | Read-only review of a branch against its acceptance criteria, test layers, and repo standards; returns a findings table | Subagent of `ado-implement` |
+
 It also connects the [hosted Azure DevOps MCP server](https://learn.microsoft.com/azure/devops/mcp-server/remote-mcp-server), limited to work-item, iteration, and repository tools.
 
 ## The `ado-implement` flow
@@ -23,6 +27,7 @@ pick interview mode   grill (decisions) or teach (decisions + why + recall)
   branch              off the base branch you choose, freshly fetched
   implement           red -> green: unit, accessibility (axe), UI (Playwright)
   commit              message drafted from the work item, linked to it
+  review              PR Reviewer subagent (read-only) -> findings -> fixes
   pull request        body via `pr`, pushed and linked on your yes
   hand back           evidence per criterion, optional ADO state/comment
 ```
@@ -64,7 +69,7 @@ Skills work in any client that supports [Agent Skills](https://agentskills.io/).
 
 ## Contributing
 
-Each skill lives in `skills/<name>/SKILL.md`; the folder name must match the skill's `name`. Bump `version` in `plugin.json` with every release so installed copies update.
+Each skill lives in `skills/<name>/SKILL.md`; the folder name must match the skill's `name`. Custom agents are Copilot-specific, so they live in `com.github.copilot/agents/<name>.agent.md`; other clients ignore that folder, and `ado-implement` falls back to a general subagent that reads the same file. Bump `version` in `plugin.json` with every release so installed copies update.
 
 ## License
 

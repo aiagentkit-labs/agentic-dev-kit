@@ -3,7 +3,7 @@ name: ado-implement
 description: Take Azure DevOps (ADO) work items from backlog to pull request through an interview at every gate. Use when the user mentions ADO, Azure Boards, a work item / bug / user story ID or "AB#123", or asks to pick up their assigned items.
 ---
 
-Turn an ADO work item into a pull request ready for review: find the item, branch, implement test-first, commit, and open the PR. The item's **acceptance criteria** is the completion criterion: it is done only when every criterion maps to evidence (a passing test or an observed behaviour).
+Turn an ADO work item into a pull request ready for review: find the item, branch, implement test-first, commit, have it reviewed, and open the PR. The item's **acceptance criteria** is the completion criterion: it is done only when every criterion maps to evidence (a passing test or an observed behaviour).
 
 The user steers through **gates**. Each step below ends at one: present what you found and the decisions it needs as a single interview round, then wait. Facts you can look up (code, config, git, linked items) are yours to find; decisions are the user's.
 
@@ -36,7 +36,7 @@ Done when one channel returns the org's projects.
 - IDs given (`123`, `AB#123`): use those.
 - Otherwise list the user's open items (MCP: `wit_work_item` action `my`; CLI: WIQL on `[System.AssignedTo] = @Me`, excluding closed states, ordered by priority) and apply any filter they give: iteration, area path, tag, type.
 
-**Gate**: the user picks. One item per branch and PR; several picks run through steps 3–9 one at a time, in priority order.
+**Gate**: the user picks. One item per branch and PR; several picks run through steps 3–10 one at a time, in priority order.
 
 ## 3. Read and assess the item
 
@@ -76,7 +76,7 @@ Done when every checklist entry is ticked with its evidence: the test name and a
 
 ## 7. Commit
 
-Self-review the full diff against the checklist first. Stage only files that belong to this item.
+Stage only files that belong to this item.
 
 Draft the message from the item, following the repo's convention; absent one, use the **Commits** format in [PRACTICES.md](PRACTICES.md):
 
@@ -91,7 +91,15 @@ AB#<id>    (GitHub-hosted)   or   #<id>    (Azure Repos)
 
 **Gate**: the staged file list and message. Prefer one commit per vertical slice when slices are independently meaningful.
 
-## 8. Open the pull request
+## 8. Review
+
+Dispatch the **PR Reviewer** agent as a subagent. It starts with an empty context and read-only tools, so the prompt carries everything it needs: the item's ID and title, the acceptance checklist with each entry's evidence, the base ref and branch, and the full output of `git diff origin/<base>...HEAD`. In clients without that agent, dispatch a general subagent whose prompt is the body of [pr-reviewer.agent.md](../../com.github.copilot/agents/pr-reviewer.agent.md) followed by the same inputs.
+
+Fix every blocker and should-fix, rerunning the tests each fix touches. Fold each fix into the commit it belongs to (`git commit --fixup <sha>`, then `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash origin/<base>`). Re-dispatch the reviewer while blockers remain.
+
+**Gate**: the findings table, what you fixed, and the nits for the user to accept or skip. Done when the reviewer's verdict is **ready**.
+
+## 9. Open the pull request
 
 Re-measure the diff: `git diff --shortstat origin/<base>...HEAD`. Recommend a split again if it outgrew the budget.
 
@@ -106,6 +114,6 @@ On the user's yes, push with `git push -u origin <branch>`, then create the PR:
 
 Done when the PR URL is returned and the item is linked to it.
 
-## 9. Hand back
+## 10. Hand back
 
 Report the branch, commits, PR URL, each acceptance criterion with its evidence, and anything deferred or split off. Then offer the remaining ADO writes (state change, a comment with the PR link and evidence summary) and run only those the user approves. In teach mode, close with a recap of the practices applied and the recall questions the user missed.
