@@ -4,12 +4,30 @@ An [Agent Plugin](https://agent-plugins.org/) that bundles skills for planning a
 
 | Skill | What it does | Invocation |
 |---|---|---|
-| `ado-implement` | Takes Azure DevOps work items from acceptance criteria to tested branches | Automatic when you mention ADO / work items, or `/ado-implement` |
+| `ado-implement` | Takes an Azure DevOps work item to a pull request, interviewing you at every gate | Automatic when you mention ADO / work items, or `/ado-implement` |
+| `pr` | Writes a PR body: summary visual, before/after evidence, merge danger | Automatic when writing a PR body, or `/pr` |
 | `grilling` | Stress-tests a plan or decision, one round of questions at a time | Automatic on "grill" phrases, or `/grilling` |
 | `grill-me` | A relentless interview to sharpen a plan or design | `/grill-me` |
 | `teach` | Teaches a new concept inside your workspace | `/teach` |
 
-It also connects the [hosted Azure DevOps MCP server](https://learn.microsoft.com/azure/devops/mcp-server/remote-mcp-server), limited to work-item and iteration tools.
+It also connects the [hosted Azure DevOps MCP server](https://learn.microsoft.com/azure/devops/mcp-server/remote-mcp-server), limited to work-item, iteration, and repository tools.
+
+## The `ado-implement` flow
+
+```text
+pick interview mode   grill (decisions) or teach (decisions + why + recall)
+  connect             MCP server, else az CLI
+  select item         yours, or by ID
+  assess item         descriptive work item check, offer rewrite
+  settle scope        acceptance checklist, small-PR split
+  branch              off the base branch you choose, freshly fetched
+  implement           red -> green: unit, accessibility (axe), UI (Playwright)
+  commit              message drafted from the work item, linked to it
+  pull request        body via `pr`, pushed and linked on your yes
+  hand back           evidence per criterion, optional ADO state/comment
+```
+
+Each step ends at a gate where you decide; nothing is pushed or written to Azure DevOps without your yes. Best practices (descriptive work items, small PRs, branch and commit hygiene) are checked along the way: see [PRACTICES.md](skills/ado-implement/PRACTICES.md) and [TESTING.md](skills/ado-implement/TESTING.md).
 
 ## Install
 
@@ -37,7 +55,8 @@ VS Code then offers to install it the first time someone sends a chat message in
 The plugin contains no credentials. Each user signs in with their own account:
 
 - **Azure DevOps MCP server**: your client prompts for a Microsoft Entra sign-in the first time a tool is used. Your Azure DevOps organization must be backed by Microsoft Entra ID.
-- **Fallback**: if the MCP server can't authenticate, `ado-implement` switches to the `az boards` CLI, using `az login` or a personal access token you export as `AZURE_DEVOPS_EXT_PAT` in your own terminal.
+- **Fallback**: if the MCP server can't authenticate, `ado-implement` switches to the `az` CLI (`az boards`, `az repos`), using `az login` or a personal access token you export as `AZURE_DEVOPS_EXT_PAT` in your own terminal.
+- **GitHub-hosted code**: pull requests are opened with the `gh` CLI, signed in with `gh auth login`.
 
 ## Client support
 
@@ -49,4 +68,4 @@ Each skill lives in `skills/<name>/SKILL.md`; the folder name must match the ski
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE). The `pr`, `grilling`, `grill-me`, and `teach` skills come from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT).
