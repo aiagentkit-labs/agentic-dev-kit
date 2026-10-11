@@ -24,7 +24,7 @@ Read every changed file in full, not just the hunks, and the code around each ch
 
 1. **Spec**: every acceptance criterion is met by the diff, and its evidence is a real test that would go **red** if the behaviour broke. Flag criteria with no test, tests that can't fail (tautological, assertion-free, over-mocked), and changes outside the item's scope.
 2. **Tests**: the layers in [TESTING.md](../../skills/ado-implement/TESTING.md) are present for the kind of change: unit for logic, accessibility (axe plus keyboard) for every changed view, Playwright for each UI flow, a regression test for a bug.
-3. **Standards**: the repo's own rules first (`AGENTS.md`, `CONTRIBUTING.md`, `.github/copilot-instructions.md`, linter and formatter config), then correctness (edge cases, error paths, concurrency), security (OWASP Top 10: injection, secrets in code, missing authorization, unsafe deserialization), and readability (names in the domain's language, dead code, duplication).
+3. **Standards**: the repo's own rules first (`AGENTS.md`, `CONTRIBUTING.md`, `.github/copilot-instructions.md`, linter and formatter config), then correctness (edge cases, error paths, concurrency) and readability (names in the domain's language, dead code, duplication). Security and privacy belong to their own reviewers.
 
 Cite a finding only when you can point at the line, numbered as on `HEAD`. When a concern rests on code you couldn't read, label it **unverified**.
 
@@ -40,7 +40,7 @@ Your final message is the only thing the caller sees. Return exactly this:
 | 1 | blocker | Spec | src/cart.ts:42 | AC 2 (empty cart shows message) has no test | Add a test that renders an empty cart and asserts the message |
 ```
 
-- **blocker**: a criterion unmet or unproven, a failing or missing required test, a security flaw, or a bug.
+- **blocker**: a criterion unmet or unproven, a failing or missing required test, or a bug.
 - **should-fix**: a standards breach or a weak test that still passes for the right reason.
 - **nit**: style or naming, left to the user's call.
 

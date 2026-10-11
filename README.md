@@ -14,6 +14,8 @@ An [Agent Plugin](https://agent-plugins.org/) that bundles skills for planning a
 | Agent | What it does | Invocation |
 |---|---|---|
 | `PR Reviewer` | Read-only review of a branch or PR against its spec, test layers, and repo standards; returns a findings table | Subagent of `ado-implement` and `pr-review` |
+| `Security Reviewer` | Read-only review against [security controls](review-controls/security.md) plus your organization's | Subagent, in parallel with `PR Reviewer` |
+| `Privacy Reviewer` | Read-only data-flow review against [privacy controls](review-controls/privacy.md) plus your organization's | Subagent, in parallel with `PR Reviewer` |
 
 It also connects the [hosted Azure DevOps MCP server](https://learn.microsoft.com/azure/devops/mcp-server/remote-mcp-server), limited to work-item, iteration, and repository tools.
 
@@ -64,6 +66,14 @@ Each step ends at a gate where you decide; nothing is pushed or written to Azure
 ```
 
 VS Code then offers to install it the first time someone sends a chat message in that repo.
+
+## Your organization's security and privacy controls
+
+The Security and Privacy reviewers apply a baseline ([security](review-controls/security.md), [privacy](review-controls/privacy.md)) that every company will want to tailor. Three extension points, from lightest to heaviest:
+
+1. **Per repo**: add `.github/review-controls/security.md` or `privacy.md` in the same format as the baseline. Your controls add to the baseline; reusing a baseline ID (`SEC-03`) replaces it. These files are always read from the target branch, so a PR can't rewrite the controls it's checked against.
+2. **Scanners and sign-off**: list read-only scanner commands under `## Scanners` (they run only after you approve each command) and the teams that sign off on `escalate` findings under `## Escalation` (added as required PR reviewers).
+3. **Org-wide**: fork this plugin and edit the baseline, or add your internal read-only tools (for example a data-classification MCP server) to the `tools` list in [security-reviewer.agent.md](com.github.copilot/agents/security-reviewer.agent.md) or [privacy-reviewer.agent.md](com.github.copilot/agents/privacy-reviewer.agent.md).
 
 ## Authentication
 

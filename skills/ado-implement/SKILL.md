@@ -93,11 +93,18 @@ AB#<id>    (GitHub-hosted)   or   #<id>    (Azure Repos)
 
 ## 8. Review
 
-Dispatch the **PR Reviewer** agent as a subagent. It starts with an empty context and read-only tools, so the prompt carries everything it needs: the item's ID and title, the acceptance checklist with each entry's evidence, the base ref and branch, and the full output of `git diff origin/<base>...HEAD`. In clients without that agent, dispatch a general subagent whose prompt is the body of [pr-reviewer.agent.md](../../com.github.copilot/agents/pr-reviewer.agent.md) followed by the same inputs.
+Dispatch three read-only reviewers as parallel subagents: **PR Reviewer**, **Security Reviewer**, and **Privacy Reviewer**. Each starts with an empty context, so every prompt carries: the item's ID and title, the acceptance checklist with each entry's evidence, the base ref and branch, and the full output of `git diff origin/<base>...HEAD`.
 
-Fix every blocker and should-fix, rerunning the tests each fix touches. Fold each fix into the commit it belongs to (`git commit --fixup <sha>`, then `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash origin/<base>`). Re-dispatch the reviewer while blockers remain.
+The security and privacy prompts also carry the organization's controls and scanner output:
 
-**Gate**: the findings table, what you fixed, and the nits for the user to accept or skip. Done when the reviewer's verdict is **ready**.
+- **Controls**: `git show origin/<base>:.github/review-controls/security.md` (and `privacy.md`), or "none" when absent. Always read them from the base, never from the branch under review, so a change can't rewrite its own controls.
+- **Scanners**: the commands listed under Scanners in the plugin's [review-controls](../../review-controls/) baseline and in those files. Show the user the exact commands and run only the ones they approve, then pass each output along.
+
+In clients without these agents, dispatch general subagents whose prompts are the bodies of [pr-reviewer](../../com.github.copilot/agents/pr-reviewer.agent.md), [security-reviewer](../../com.github.copilot/agents/security-reviewer.agent.md), and [privacy-reviewer](../../com.github.copilot/agents/privacy-reviewer.agent.md), each followed by the same inputs.
+
+Merge the three tables. Fix every blocker and should-fix, rerunning the tests each fix touches. Fold each fix into the commit it belongs to (`git commit --fixup <sha>`, then `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash origin/<base>`). Re-dispatch the reviewers that reported blockers while any remain.
+
+**Gate**: the merged findings, what you fixed, the nits for the user to accept or skip, and each `escalate` finding with the sign-off team its controls name. Done when every verdict is **ready**, or **needs sign-off** with the user's agreement to carry the escalations into the PR.
 
 ## 9. Open the pull request
 
@@ -105,7 +112,7 @@ Re-measure the diff: `git diff --shortstat origin/<base>...HEAD`. Recommend a sp
 
 Write the body with the `pr` skill (call the Skill tool with "pr"). Put the screenshots and passing test runs from step 6 in its Evidence section, and append the work item link and the acceptance checklist with each entry's evidence.
 
-**Gate**: title (the item title plus its ID), target branch (the base from step 5), draft or published, reviewers, merge strategy (squash recommended where allowed), auto-complete when policies pass, and the full body. Recommend a draft until the pipeline is green.
+**Gate**: title (the item title plus its ID), target branch (the base from step 5), draft or published, reviewers (including each sign-off team from step 8's `escalate` findings, as required reviewers), merge strategy (squash recommended where allowed), auto-complete when policies pass, and the full body. List open escalations in the body's Merge Danger section. Recommend a draft until the pipeline is green.
 
 On the user's yes, push with `git push -u origin <branch>`, then create the PR:
 

@@ -26,9 +26,9 @@ Done when `HEAD` is the PR's latest commit, so the line numbers you read match t
 
 ## 4. Review
 
-Dispatch the **PR Reviewer** agent as a subagent with: the spec, the base `origin/<target>`, the full `git diff origin/<target>...HEAD`, and the existing threads, so it skips points already raised. On a re-review, send the diff since your last reviewed commit and your open threads, and ask it to say whether each thread is now addressed. In clients without that agent, use the fallback in [ado-implement step 8](../ado-implement/SKILL.md#8-review).
+Dispatch the reviewers exactly as in [ado-implement step 8](../ado-implement/SKILL.md#8-review): PR Reviewer, Security Reviewer, and Privacy Reviewer in parallel, with the organization controls read from `origin/<target>`, never from the PR's head. Each prompt carries the spec, the base `origin/<target>`, the full `git diff origin/<target>...HEAD`, and the existing threads, so they skip points already raised. On a re-review, send the diff since your last reviewed commit and your open threads, and ask whether each thread is now addressed.
 
-When the diff breaks the small-PR budget, split the changed files into groups and dispatch one reviewer per group in parallel. Merge their tables, and add a finding that recommends splitting the PR.
+When the diff breaks the small-PR budget, split the changed files into groups and dispatch one set of reviewers per group in parallel. Merge their tables, and add a finding that recommends splitting the PR.
 
 Then open every cited line yourself and drop any finding you can't confirm. Done when each remaining finding points at a real line on `HEAD`.
 
@@ -43,6 +43,7 @@ Then, in the same round:
   | Findings | Azure Repos | GitHub |
   |---|---|---|
   | Any blocker | Wait for author | Request changes |
+  | Any `escalate`, no blocker | Wait for author, and add the sign-off team as reviewer | Comment, and request the sign-off team's review |
   | Only should-fix or nitpick | Approve with suggestions | Comment |
   | None | Approve | Approve |
 
