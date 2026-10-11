@@ -75,6 +75,17 @@ The Security and Privacy reviewers apply a baseline ([security](review-controls/
 2. **Scanners and sign-off**: list read-only scanner commands under `## Scanners` (they run only after you approve each command) and the teams that sign off on `escalate` findings under `## Escalation` (added as required PR reviewers).
 3. **Org-wide**: fork this plugin and edit the baseline, or add your internal read-only tools (for example a data-classification MCP server) to the `tools` list in [security-reviewer.agent.md](com.github.copilot/agents/security-reviewer.agent.md) or [privacy-reviewer.agent.md](com.github.copilot/agents/privacy-reviewer.agent.md).
 
+## Setup
+
+The skills check their own prerequisites: a **preflight** before each run (git version, `az` + `azure-devops` extension, `gh` and its sign-in for GitHub repos, `node` for web projects, working-tree state) and a **postflight** after (working tree, stash, starting branch restored, branch pushed, temp files cleaned). Run them yourself from a repo:
+
+```bash
+<plugin>/scripts/check.sh pre ado-implement     # or: pr-review
+<plugin>/scripts/check.sh post ado-implement
+```
+
+Install anything missing with [`scripts/install.sh`](scripts/install.sh) (macOS via Homebrew; Linux prints the commands) or [`scripts/install.ps1`](scripts/install.ps1) (Windows via winget). Both show what they'll run and ask first; sign-ins (`az login`, `gh auth login`) stay with you.
+
 ## Authentication
 
 The plugin contains no credentials. Each user signs in with their own account:

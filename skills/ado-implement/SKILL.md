@@ -11,6 +11,8 @@ The user steers through **gates**. Each step below ends at one: present what you
 
 At every gate, check the work against [PRACTICES.md](PRACTICES.md) (descriptive work items, small PRs, branches, commits, PRs). When a practice is missed, name it and recommend the fix in that gate's round.
 
+**Preflight and postflight** bracket every run. From the user's repo root, run [check.sh](../../scripts/check.sh) by its absolute path (`check.sh pre ado-implement`; on Windows, `check.ps1 -Phase pre -Skill ado-implement`) before step 0, and with `post` after step 10. A `FAIL` stops the run: show the fixes, and for missing tools point the user at [install.sh](../../scripts/install.sh) or [install.ps1](../../scripts/install.ps1) to run in their own terminal, since installs and sign-ins can prompt for admin rights or credentials. A `WARN` is mentioned and the run continues. Write every temporary file (PR body, JSON payloads) under `.git/agentic-dev-kit/tmp/`, which the preflight creates and a clean postflight removes.
+
 ## 0. Pick the interview mode
 
 Ask once, before step 1:
@@ -117,10 +119,12 @@ Write the body with the `pr` skill (call the Skill tool with "pr"). Put the scre
 On the user's yes, push with `git push -u origin <branch>`, then create the PR:
 
 - **Azure Repos**: MCP `repo_pull_request_write` action `create`, then `wit_work_item_link_write` action `link_to_pull_request`. CLI: `az repos pr create --source-branch <branch> --target-branch <base> --title <title> --description <body> --work-items <id> [--draft true] [--auto-complete true --squash true --delete-source-branch true]`.
-- **GitHub**: `gh pr create --base <base> --head <branch> --title <title> --body-file <file> [--draft]`; `AB#<id>` in the body links the item through the Azure Boards app.
+- **GitHub**: `gh pr create --base <base> --head <branch> --title <title> --body-file .git/agentic-dev-kit/tmp/pr-body.md [--draft]`; `AB#<id>` in the body links the item through the Azure Boards app.
 
 Done when the PR URL is returned and the item is linked to it.
 
 ## 10. Hand back
 
 Report the branch, commits, PR URL, each acceptance criterion with its evidence, and anything deferred or split off. Then offer the remaining ADO writes (state change, a comment with the PR link and evidence summary) and run only those the user approves. When reviewers comment, the `pr-review` skill works the threads from the author's side. In teach mode, close with a recap of the practices applied and the recall questions the user missed.
+
+Then run the postflight. Alongside it, confirm the remote state with a fresh read: the PR exists, targets the base, links the item, and lists any sign-off teams as reviewers. Done when the postflight passes and the remote state matches.
