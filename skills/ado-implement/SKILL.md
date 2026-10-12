@@ -13,7 +13,14 @@ At every gate, check the work against [PRACTICES.md](PRACTICES.md) (descriptive 
 
 ## Preflight
 
-From the user's repo root, run [check.sh](../../scripts/check.sh) by its absolute path: `check.sh pre ado-implement` (Windows: `check.ps1 -Phase pre -Skill ado-implement`). Show its table to the user. A `FAIL` stops the run: show the fixes, and for missing tools point the user at [install.sh](../../scripts/install.sh) or [install.ps1](../../scripts/install.ps1) to run in their own terminal, since installs and sign-ins can prompt for admin rights or credentials. A `WARN` is mentioned and the run continues.
+From the user's repo root, run [check.sh](../../scripts/check.sh) by its absolute path: `check.sh pre ado-implement` (Windows: `check.ps1 -Phase pre -Skill ado-implement`). Show its table to the user. A `WARN` is mentioned and the run continues.
+
+A `FAIL` pauses the run. Ask one round with a question per failing check, offering two answers:
+
+- **Fix it**: show the fix and rerun the check. For missing tools, point the user at [install.sh](../../scripts/install.sh) or [install.ps1](../../scripts/install.ps1) to run in their own terminal, since installs and sign-ins can prompt for admin rights or credentials.
+- **Skip it**: rerun with `--skip <ids>` (Windows: `-SkipChecks <ids>`), where the ids are `git`, `az`, `gh`, or `node`, comma-separated. The check then reads `SKIP`. Say what the skip costs before the user picks it: for example, without `gh` the run can't open a GitHub PR at step 9.
+
+Recommend the fix when it's quick, else the skip when the check isn't needed until a later step. Before the step that needs a skipped tool, rerun its check without the skip, and pause there if it still fails.
 
 Done when the table is on screen with no `FAIL`. The matching postflight runs at the end of step 10.
 
