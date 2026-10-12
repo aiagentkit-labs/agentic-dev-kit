@@ -25,6 +25,15 @@ Every gate is a round in this format, the `grilling` skill's, written out here s
 - Each question carries your recommended answer, worded so "yes" accepts it.
 - If the user asks for a different pace, such as one question at a time, follow it. The steps and gates stay.
 
+**Ask in the same turn.** A round written as a chat message ends your turn, so the user has to send a new message to answer it, and the run stalls between gates. When the client has a question tool (VS Code: `askQuestions`; Claude Code: `AskUserQuestion`), ask every round through it instead. The answers come back to you as the tool's result, and you carry on to the next round or step in the same turn.
+
+- Write what the gate needs the user to read (the preflight table, the scorecard, the draft, the diff summary) as chat text first, then call the tool.
+- Each ❓ becomes one question: header `Q<n> - <title>`, the lettered options as options with your recommended one marked recommended (for a yes/no decision, the options are the recommended answer and its alternative), and the 📘 line in the question's message.
+- Leave free-form input on, so the user can answer "no, because …".
+- If the tool caps how many questions one call holds, ask the frontier over consecutive calls.
+
+Use the chat layout below only when there is no question tool, or the user asks for it.
+
 ```markdown
 **Step 4/10 · Settle scope · Round 1**
 
@@ -43,11 +52,11 @@ Reply per question, for example: `1 yes · 2 b · 3 no, because …`
 
 The 📘 line is **teach** mode only, and every teach-mode question carries all three parts: Why, Source, and Check. Its source is about *that* decision: the docs for the technology or practice in question, not a general process page. Mark the recall answers at the start of the next round, and correct any misses in a line each.
 
-Use this layout verbatim, emoji included: the user scans for ❓ and ➡️ and replies by number. When the user's own message sets a pace (for example "one question at a time"), say once in the first round that you're following it and how many open questions remain, so they can switch back to the full frontier.
+In chat, use this layout verbatim, emoji included: the user scans for ❓ and ➡️ and replies by number. When the user's own message sets a pace (for example "one question at a time"), say once in the first round that you're following it and how many open questions remain, so they can switch back to the full frontier.
 
 ## 0. Pick the interview mode
 
-Ask once, unless the user's message already names it:
+Ask once, through the question tool when there is one, unless the user's message already names it:
 
 - **Grill**: rounds as above.
 - **Teach**: rounds with the 📘 line on every question. When a topic deserves more than a round can hold, suggest the user run `/teach <topic>` afterwards.
