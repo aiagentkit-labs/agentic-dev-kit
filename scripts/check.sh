@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Preflight and postflight checks for agentic-dev-kit skills; run from the user's repo root.
-# Usage: check.sh pre|post <ado-implement|pr-review|branch-policies> [--skip git,az,gh,node]
+# Usage: check.sh pre|post <ado-implement|pr-review|branch-policies> [--skip git,az,gh,node,dotnet]
 set -u
 
 phase="${1:-}"
 skill="${2:-}"
-usage="usage: check.sh pre|post <ado-implement|pr-review|branch-policies> [--skip git,az,gh,node]"
+usage="usage: check.sh pre|post <ado-implement|pr-review|branch-policies> [--skip git,az,gh,node,dotnet]"
 case "$phase" in pre|post) ;; *) echo "$usage" >&2; exit 2 ;; esac
 case "$skill" in ado-implement|pr-review|branch-policies) ;; *) echo "unknown skill: $skill" >&2; exit 2 ;; esac
 skip=""
@@ -96,6 +96,14 @@ pre() {
       report PASS "node $(node --version)"
     else
       report WARN "node / npx" "needed for Playwright and axe tests; run install.sh"
+    fi
+  fi
+
+  if [ "$skill" = ado-implement ] && [ -n "$(git ls-files '*.sln' '*.slnx' '*.csproj' | head -1)" ] && ! skipped dotnet "dotnet SDK"; then
+    if have dotnet && dotnet --version >/dev/null 2>&1; then
+      report PASS "dotnet $(dotnet --version)"
+    else
+      report WARN "dotnet SDK" "needed to build, test, and lint .NET code; https://dot.net"
     fi
   fi
 
