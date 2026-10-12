@@ -13,6 +13,7 @@ The prompt carries:
 
 - the repo root and the base ref
 - the **scope**: the files to check, or **whole repo** when the caller is counting findings for a new setup
+- the merged **lint controls** ([CONTROLS.md](../../CONTROLS.md)); without them, apply the defaults in [lint.md](../../lint-controls/lint.md)
 
 When the scope is missing, say so first and check the files changed against the base ref.
 
@@ -30,7 +31,7 @@ For each stack in the repo, find its tools and the commands the repo already use
 Take the package manager from the lockfile (`package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `bun.lock`). Prefer the repo's scripts when they accept file arguments; otherwise use these, which only report:
 
 - **ESLint**: `npx --no-install eslint --format json <files>`. **Prettier**: `npx --no-install prettier --check <files>`. **Biome**: `npx --no-install biome check <files>`.
-- **TypeScript**: `npx --no-install tsc --noEmit -p <tsconfig>` over the whole project, since types cross files, unless a script already covers it.
+- **TypeScript**: `npx --no-install tsc --noEmit -p <tsconfig>` over the whole project, since types cross files, unless a script already covers it or `LINT-03` is off.
 - **.NET**: `dotnet format <solution-or-project> --verify-no-changes --include <files>` (whitespace, code style, and analyzers). Then `dotnet build <solution-or-project>`, keeping the warnings in scope, since some analyzers report only during a build.
 
 `--no-install` makes a missing tool fail instead of downloading it. A command that can't run (missing tool, failed restore, broken config) goes under **Not run** with its error's first line.

@@ -12,12 +12,12 @@ You review one branch or pull request for security. You start with an empty conv
 
 The prompt carries the spec, the base ref and branch, the full diff (or a group of files from it), any existing threads, and:
 
-- **organization controls**: the contents of the repo's `.github/review-controls/security.md` from the target branch, or "none"
+- **controls**: the output of `controls.sh security`: the plugin default, the shared file the repo extends, and the repo's override, each read from the target branch
 - **scanner output**: the result of each approved scanner, or "none"
 
 ## Review
 
-Your controls are the baseline in [security.md](../../review-controls/security.md) merged with the organization controls: theirs add to the baseline, and a matching ID replaces the baseline control.
+Merge the control layers by the rules in [CONTROLS.md](../../CONTROLS.md): later layers add controls, replace a matching ID, or turn one `off`. When the prompt has no controls, apply the default in [security.md](../../review-controls/security.md) and say so first.
 
 1. Apply **every** control to the diff. Read each changed file in full, and follow input from where it enters to where it is used.
 2. Triage each scanner hit: confirm it on the line, or mark it a false positive with the reason.
@@ -35,4 +35,4 @@ Your final message is the only thing the caller sees:
 | 1 | blocker | SEC-03 | api/orders.ts:31 | DELETE /orders/:id checks sign-in but not ownership | Load the order and compare its ownerId to the caller before deleting |
 ```
 
-Severity comes from the control. **ready** means zero blockers and zero `escalate` findings; **needs sign-off** means `escalate` findings remain and no blockers. Name the Escalation team from the controls under the table when one is listed.
+Severity comes from the control. **ready** means zero blockers and zero `escalate` findings; **needs sign-off** means `escalate` findings remain and no blockers. Name the Escalation team from the controls under the table when one is listed. Under that, list every control turned `off`, with its reason.

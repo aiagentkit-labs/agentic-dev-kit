@@ -1,25 +1,14 @@
 # Practices
 
-Reference for [`ado-implement`](SKILL.md). Each practice is a check the skill applies at a gate; when one fails, name it, say why it matters in one line, and recommend the fix. In teach mode, cite the practice's source.
+Why the [practice controls](../../practice-controls/practices.md) matter and how to meet them, for [`ado-implement`](SKILL.md) and [`pr-review`](../pr-review/SKILL.md); each section names the control IDs it serves. Read the merged controls first ([CONTROLS.md](../../CONTROLS.md)): where the repo overrides a control, the override wins over this file. When a control is missed, name its ID, say why it matters in one line, and recommend the fix. In teach mode, cite the section's source.
 
-## Descriptive work items
+## Descriptive work items (WI-01 to WI-06)
 
-An item is ready when a reviewer who never spoke to its author could tell what "done" looks like.
+An item is ready when a reviewer who never spoke to its author could tell what "done" looks like. When an item falls short, draft the improved fields and offer to write them back. Source: [Azure Boards: best practices, team backlog](https://learn.microsoft.com/azure/devops/boards/best-practices-agile-project-management#team-backlog).
 
-| Field | Ready when |
-|---|---|
-| Title | States the outcome, not the activity: "Users can reset their password from the login page", not "Password fix" |
-| Description | Says who is affected, the problem, and why it matters now |
-| Acceptance criteria | Numbered, each independently testable, written as Given / When / Then; UI items include an accessibility criterion |
-| Repro steps (bugs) | Steps, expected vs actual, environment, and frequency |
-| Size | Fits one small PR (below); otherwise split into child tasks |
-| Links | Parent feature or epic, plus related or blocking items |
+## Small PRs (PR-01, PR-02)
 
-When an item falls short, draft the improved fields and offer to write them back. Source: [Azure Boards: best practices, team backlog](https://learn.microsoft.com/azure/devops/boards/best-practices-agile-project-management#team-backlog).
-
-## Small PRs
-
-One PR does one thing. Aim for under ~400 changed lines of hand-written code (exclude lockfiles, snapshots, and generated code); past that, reviewers skim instead of review. Source: [Google Engineering Practices: Small CLs](https://google.github.io/eng-practices/review/developer/small-cls.html).
+Past a few hundred lines, reviewers skim instead of review. Source: [Google Engineering Practices: Small CLs](https://google.github.io/eng-practices/review/developer/small-cls.html).
 
 Ways to split, in order of preference:
 
@@ -30,26 +19,18 @@ Ways to split, in order of preference:
 
 Record each split as a child task on the work item, so the backlog reflects the plan.
 
-## Branches
+## Branches (BR-01 to BR-03)
 
-- Short-lived: branch from the freshly fetched base and open the PR within days, not weeks.
-- Name carries the item: `feat/<id>-<slug>` or `fix/<id>-<slug>`, unless the repo's convention says otherwise.
-- One item per branch.
+Short-lived branches stay close to the base and merge without conflict.
 
-## Commits
+## Commits (CM-01 to CM-04)
 
-- One logical change per commit; the build and tests pass at every commit.
-- Subject in the imperative mood, at most 72 characters; body explains *why*. Source: [How to Write a Git Commit Message](https://cbea.ms/git-commit/).
-- Absent a repo convention, use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/): `feat`, `fix`, `test`, `refactor`, `docs`, `chore`.
-- Link the item in every commit: `AB#<id>` on GitHub-hosted repos (needs the Azure Boards app), `#<id>` on Azure Repos.
+A commit that builds and does one thing can be reviewed, reverted, and bisected on its own. Sources: [How to Write a Git Commit Message](https://cbea.ms/git-commit/), [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). `AB#<id>` links a GitHub commit to Azure Boards only when the Azure Boards app is installed on the repo.
 
-## Pull requests
+## Pull requests (PR-03 to PR-06)
 
-- Self-review the full diff before asking anyone else to.
-- Open as a draft until the build is green; publish when ready for review.
-- Link the work item, so branch policies and traceability work. Source: [Azure Repos: create a PR](https://learn.microsoft.com/azure/devops/repos/git/pull-requests).
-- Squash merge keeps the base branch one commit per item, when the repo allows it.
+A linked work item lets branch policies and traceability work. Source: [Azure Repos: create a PR](https://learn.microsoft.com/azure/devops/repos/git/pull-requests).
 
-## Working solo
+## Working solo (SOLO-01)
 
-With no second person to approve, still open a PR for every change: it runs the pipeline, records the review, and links the work item. Relax only the approval rule (the `branch-policies` skill's solo profile), never the build or the PR requirement. Let the PR, Security, and Privacy reviewers stand in as the second reader. Before approving your own PR, re-read its diff after a break.
+With no second person to approve, a PR still runs the pipeline, records the review, and links the work item. Relax only the approval rule (the `branch-policies` skill's solo profile). Let the PR, Security, and Privacy reviewers stand in as the second reader. Before approving your own PR, re-read its diff after a break.

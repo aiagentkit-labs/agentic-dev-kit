@@ -78,13 +78,23 @@ Anything else you add (for example "one question at a time") overrides the skill
 
 VS Code then offers to install it the first time someone sends a chat message in that repo.
 
-## Your organization's security and privacy controls
+## Tailoring the controls
 
-The Security and Privacy reviewers apply a baseline ([security](review-controls/security.md), [privacy](review-controls/privacy.md)) that every company will want to tailor. Three extension points, from lightest to heaviest:
+Every rule the kit applies is a **control** with an ID: security (`SEC-03`), privacy (`PRV-03`), testing and accessibility (`TST-01`, `A11Y-02`, `UI-05`), practices (`WI-03`, `PR-01`, `CM-04`), and lint (`LINT-04`, and the baselines it sets up). Each topic has a plugin default that a repo tailors with a file at the same path under `.github/`:
 
-1. **Per repo**: add `.github/review-controls/security.md` or `privacy.md` in the same format as the baseline. Your controls add to the baseline; reusing a baseline ID (`SEC-03`) replaces it. These files are always read from the target branch, so a PR can't rewrite the controls it's checked against.
-2. **Scanners and sign-off**: list read-only scanner commands under `## Scanners` (they run only after you approve each command) and the teams that sign off on `escalate` findings under `## Escalation` (added as required PR reviewers).
-3. **Org-wide**: fork this plugin and edit the baseline, or add your internal read-only tools (for example a data-classification MCP server) to the `tools` list in [security-reviewer.agent.md](com.github.copilot/agents/security-reviewer.agent.md) or [privacy-reviewer.agent.md](com.github.copilot/agents/privacy-reviewer.agent.md).
+| Topic | Default | Repo override |
+|---|---|---|
+| Security, privacy | [review-controls/](review-controls/) | `.github/review-controls/security.md`, `privacy.md` |
+| Testing, accessibility, UI tests | [testing-controls/testing.md](testing-controls/testing.md) | `.github/testing-controls/testing.md` |
+| Work items, branches, commits, PRs | [practice-controls/practices.md](practice-controls/practices.md) | `.github/practice-controls/practices.md` |
+| Lint and format | [lint-controls/lint.md](lint-controls/lint.md) | `.github/lint-controls/lint.md` |
+
+- **Add, replace, or turn off** a control by ID; turning one off takes a reason. Or set `mode: replace` to swap the whole default for your own.
+- **Share across repos**: `extends: <git URL>#<ref>:<path>` pulls an organization's version first, fetched with your own git credentials.
+- **Add guidance**: an `## Instructions` section the agents follow for that topic.
+- **Can't be loosened by the change under review**: overrides are read from the base branch. Turned-off controls are listed at every gate and review, and security or privacy ones in every PR.
+
+The full format is in [CONTROLS.md](CONTROLS.md). Security and privacy files also take `## Scanners` (read-only commands that run after you approve each one) and `## Escalation` (teams added as required PR reviewers). For internal read-only tools, such as a data-classification MCP server, add them to the `tools` list in [security-reviewer.agent.md](com.github.copilot/agents/security-reviewer.agent.md) or [privacy-reviewer.agent.md](com.github.copilot/agents/privacy-reviewer.agent.md).
 
 ## Setup
 

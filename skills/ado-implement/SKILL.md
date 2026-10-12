@@ -9,7 +9,7 @@ The user steers through **gates**. Each step below ends at one: present what you
 
 **Writes to shared systems** (ADO field, state, comment, or link edits; `git push`; creating or updating a PR) each need the user's yes at the moment of the write. Credentials never pass through chat. Write every temporary file (PR body, JSON payloads) under `.git/agentic-dev-kit/tmp/`.
 
-At every gate, check the work against [PRACTICES.md](PRACTICES.md) (descriptive work items, small PRs, branches, commits, PRs). When a practice is missed, name it and recommend the fix in that gate's round.
+**Controls** are the rules this run applies: plugin defaults that the repo can tailor ([CONTROLS.md](../../CONTROLS.md)). After preflight, `git fetch origin` and read the merged `practices`, `testing`, and `lint` controls with [controls.sh](../../scripts/controls.sh) `<topic> --ref origin/<default branch>`; read them again from `origin/<base>` if step 5 picks a different base. List every control the repo turned off, with its reason, in the first round. At every gate, check the work against the practices controls ([PRACTICES.md](PRACTICES.md) has the why and how). When one is missed, name its ID and recommend the fix in that gate's round.
 
 ## Preflight
 
@@ -92,15 +92,15 @@ Done when one channel returns the org's projects.
 
 Fetch the item with its relations: title, type, state, description, acceptance criteria (`Microsoft.VSTS.Common.AcceptanceCriteria`), repro steps for bugs (`Microsoft.VSTS.TCM.ReproSteps`), the parent for context, and children as sub-scope. Fields are HTML; read them as plain text.
 
-Score it against **Descriptive work items** in [PRACTICES.md](PRACTICES.md). Then draft the item as it should read: title, description, and acceptance criteria as numbered Given / When / Then. Fill each gap with your recommended default, and mark every default as an **assumption**.
+Score it against the work-item controls (`WI-*`). Then draft the item as it should read: title, description, and acceptance criteria as numbered Given / When / Then. Fill each gap with your recommended default, and mark every default as an **assumption**.
 
 **Gate**: this gate always runs, even when the user asks to go straight to scope questions, because the draft is what those questions refine. Show a scorecard (field, ready or not, gap), the full draft, and a round whose frontier is the draft's assumptions. Done when the user has accepted or amended every assumption. Then offer to write the agreed draft back to the item.
 
 ## 4. Settle scope
 
-Turn the agreed criteria into a numbered checklist. Pair each entry with the check that proves it and its test layer from [TESTING.md](TESTING.md). Run further rounds on anything still open, or anything that contradicts the code.
+Turn the agreed criteria into a numbered checklist. Pair each entry with the check that proves it and its test layer under the testing controls ([TESTING.md](TESTING.md) shows how). Run further rounds on anything still open, or anything that contradicts the code.
 
-Estimate the diff size. If it breaks the **Small PRs** budget in [PRACTICES.md](PRACTICES.md), propose a split and the child tasks it creates.
+Estimate the diff size. If it breaks the size control (`PR-01`), propose a split and the child tasks it creates.
 
 **Gate**: the user confirms the checklist and any split. Done when every entry has a concrete, verifiable check.
 
@@ -108,7 +108,7 @@ Estimate the diff size. If it breaks the **Small PRs** budget in [PRACTICES.md](
 
 1. Read the repo's conventions: `AGENTS.md`, `CONTRIBUTING.md`, `.github/copilot-instructions.md`, branch policies, and existing branch and commit history.
 2. Find candidate base branches: the remote default (`git symbolic-ref refs/remotes/origin/HEAD`), plus any long-lived branches the conventions name (`develop`, `release/*`).
-3. **Gate**: the base branch, and the new branch name: the repo's convention, else `feat/<id>-<slug>` (story, task, feature) or `fix/<id>-<slug>` (bug).
+3. **Gate**: the base branch, and the new branch name: the repo's convention, else the one in `BR-02`.
 4. With uncommitted changes present, ask whether to stash, commit, or stop; keep the user's work intact.
 5. `git fetch origin <base>`, then `git switch -c <branch> origin/<base>`.
 
@@ -118,7 +118,7 @@ Done when the new branch is checked out at the tip of the freshly fetched base.
 
 Detect the project's stack and existing test tooling.
 
-**Gate**: the test plan: for each checklist entry, the layer(s), the seam, and the test name. Any new framework or package (Playwright, axe) is listed for the user to approve.
+**Gate**: the test plan: for each checklist entry, the layer(s), the seam, and the test name, meeting every testing control that applies. Any new framework or package (Playwright, axe) is listed for the user to approve.
 
 Then work **red → green** in vertical slices, one checklist entry at a time: a failing test, the least code that passes it, rerun. Follow [TESTING.md](TESTING.md) for each layer. Keep the build, linter, and tests green for everything you touched, using the commands the repo defines (package scripts, solution files, Makefile, CI workflows). For .NET and TypeScript/JavaScript, run the `lint` skill (call the Skill tool with "lint") on the touched files before the commit gate.
 
@@ -128,7 +128,7 @@ Done when every checklist entry is ticked with its evidence: the test name and a
 
 Stage only files that belong to this item.
 
-Draft the message from the item, following the repo's convention; absent one, use the **Commits** format in [PRACTICES.md](PRACTICES.md):
+Draft the message from the item, following the repo's convention; absent one, follow the commit controls (`CM-*`):
 
 ```text
 feat(<scope>): <imperative summary of the item title>
@@ -145,10 +145,10 @@ AB#<id>    (GitHub-hosted)   or   #<id>    (Azure Repos)
 
 Dispatch three read-only reviewers as parallel subagents: **PR Reviewer**, **Security Reviewer**, and **Privacy Reviewer**. Each starts with an empty context, so every prompt carries: the item's ID and title, the acceptance checklist with each entry's evidence, the base ref and branch, and the full output of `git diff origin/<base>...HEAD`.
 
-The security and privacy prompts also carry the organization's controls and scanner output:
+Each prompt also carries its reviewer's controls and any scanner output:
 
-- **Controls**: `git show origin/<base>:.github/review-controls/security.md` (and `privacy.md`), or "none" when absent. Always read them from the base, never from the branch under review, so a change can't rewrite its own controls.
-- **Scanners**: the commands listed under Scanners in the plugin's [review-controls](../../review-controls/) baseline and in those files. Show the user the exact commands and run only the ones they approve, then pass each output along.
+- **Controls**: the output of `controls.sh <topic> --ref origin/<base>`, all three layers: `security` for the Security Reviewer, `privacy` for the Privacy Reviewer, and `testing`, `practices`, and `lint` for the PR Reviewer. The script reads the repo's overrides from the base, never from the branch under review, so a change can't rewrite its own controls.
+- **Scanners**: the commands under Scanners in the merged `security` and `privacy` layers. Show the user the exact commands and run only the ones they approve, then pass each output along.
 
 In clients without these agents, dispatch general subagents whose prompts are the bodies of [pr-reviewer](../../com.github.copilot/agents/pr-reviewer.agent.md), [security-reviewer](../../com.github.copilot/agents/security-reviewer.agent.md), and [privacy-reviewer](../../com.github.copilot/agents/privacy-reviewer.agent.md), each followed by the same inputs.
 
@@ -158,11 +158,11 @@ Merge the three tables. Fix every blocker and should-fix, rerunning the tests ea
 
 ## 9. Open the pull request
 
-Re-measure the diff: `git diff --shortstat origin/<base>...HEAD`. Recommend a split again if it outgrew the budget.
+Re-measure the diff: `git diff --shortstat origin/<base>...HEAD`. Recommend a split again if it outgrew `PR-01`.
 
 Write the body with the `pr` skill (call the Skill tool with "pr"). Put the screenshots and passing test runs from step 6 in its Evidence section, and append the work item link and the acceptance checklist with each entry's evidence.
 
-**Gate**: title (the item title plus its ID), target branch (the base from step 5), draft or published, reviewers (including each sign-off team from step 8's `escalate` findings, as required reviewers), merge strategy (squash recommended where allowed), auto-complete when policies pass, and the full body. List open escalations in the body's Merge Danger section. Recommend a draft until the pipeline is green.
+**Gate**: title (the item title plus its ID), target branch (the base from step 5), draft or published, reviewers (including each sign-off team from step 8's `escalate` findings, as required reviewers), merge strategy (squash recommended where allowed), auto-complete when policies pass, and the full body. List open escalations in the body's Merge Danger section, along with every security or privacy control the repo turned off and its reason. Recommend a draft until the pipeline is green.
 
 **Solo**: when nobody else can approve, check the branch's approval policy. If it would leave the PR impossible to complete, say so and offer the `branch-policies` skill's solo profile rather than any bypass. In solo, post the merged step 8 findings on the PR as its review record. Have the user acknowledge each `escalate` finding in a PR comment. Then, on the user's yes, approve and set auto-complete: `az repos pr set-vote --vote approve` and `az repos pr update --auto-complete true`, or `gh pr merge --auto --squash`.
 

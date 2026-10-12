@@ -8,11 +8,13 @@ Make the files the user touched pass the repo's linters and formatters, and set 
 - **On its own** (`/lint`): use the interview mode from [ado-implement step 0](../ado-implement/SKILL.md#0-pick-the-interview-mode), with each gate a round in the format of [ado-implement's Rounds](../ado-implement/SKILL.md#rounds). Open each gate with `Lint · Step N · Round k`.
 - **Inside another skill** (`ado-implement`, `pr-review`): use that skill's mode, and fold this skill's gates into its current round.
 
-**Scope** is the touched files: changed against the base branch (`git diff --name-only --diff-filter=d origin/<base>...HEAD`) plus uncommitted ones (`git status --porcelain`). Lint the whole repo only when the user asks, and land a whole-repo reformat as its own PR, so it never buries a feature's diff.
+**Controls**: take the merged `lint` controls from the calling skill, or read them with [controls.sh](../../scripts/controls.sh) `lint --ref origin/<base>` ([CONTROLS.md](../../CONTROLS.md)). They set the scope (`LINT-01`), what must pass (`LINT-02`, `LINT-03`), how a suppression looks (`LINT-04`), and the baselines (`LINT-10` to `LINT-12`). List any the repo turned off in the first round.
+
+**Scope** is the touched files: changed against the base branch (`git diff --name-only --diff-filter=d origin/<base>...HEAD`) plus uncommitted ones (`git status --porcelain`). Lint the whole repo only when the user asks or the repo's `LINT-01` says so.
 
 ## 1. Detect and check
 
-Dispatch the **Lint Runner** subagent with the repo root, the base ref, and the scope's file list. In clients without that agent, dispatch a general subagent whose prompt is the body of [lint-runner](../../com.github.copilot/agents/lint-runner.agent.md), followed by the same inputs. It runs in check mode and returns the repo's tools and commands, anything it couldn't run, and the findings sorted into **auto-fix**, **code change**, and **rule question**. Keeping that output in the subagent keeps long lint logs out of the conversation.
+Dispatch the **Lint Runner** subagent with the repo root, the base ref, the scope's file list, and the merged lint controls. In clients without that agent, dispatch a general subagent whose prompt is the body of [lint-runner](../../com.github.copilot/agents/lint-runner.agent.md), followed by the same inputs. It runs in check mode and returns the repo's tools and commands, anything it couldn't run, and the findings sorted into **auto-fix**, **code change**, and **rule question**. Keeping that output in the subagent keeps long lint logs out of the conversation.
 
 A **Not run** entry is a tool problem: show its error and fix it with the user, installing anything missing on their yes, then dispatch again.
 
@@ -22,7 +24,7 @@ Done when the runner returns with nothing under **Not run**.
 
 Only for pieces the runner marked **none**.
 
-**Gate**: for each missing piece, the baseline from [SETUP.md](SETUP.md): files to add, packages to install, scripts to define, and the options it lists. The user can decline a piece; it stays **none** and goes in the report.
+**Gate**: for each missing piece, the baseline its setup control names (`LINT-10` to `LINT-12`); [SETUP.md](SETUP.md) shows how to set up the defaults. Where the repo overrides a setup control, set up what the override names. List the files to add, packages to install, scripts to define, and the options. The user can decline a piece; it stays **none** and goes in the report.
 
 After installing, dispatch the runner with the scope **whole repo** and report its counts. When existing code produces many findings, recommend landing the setup as its own PR before the feature work, or the gentler starting level that SETUP.md names.
 
@@ -34,7 +36,7 @@ Done when every **none** piece is set up or declined.
 
 - **Auto-fixes**: run the runner's fix commands on the scope.
 - **Code changes**: edit by hand, then rerun the tests that cover the edit.
-- **Rule questions**: on the user's yes, suppress at the narrowest scope with the reason in the code: `// eslint-disable-next-line <rule> -- <reason>`, `// biome-ignore <rule>: <reason>`, a `#pragma warning disable <ID> // <reason>` and `restore` pair, or `[SuppressMessage("<category>", "<ID>", Justification = "<reason>")]`. Changing a rule's severity in config affects the whole repo, so ask it as a separate question.
+- **Rule questions**: on the user's yes, suppress as `LINT-04` requires, for example: `// eslint-disable-next-line <rule> -- <reason>`, `// biome-ignore <rule>: <reason>`, a `#pragma warning disable <ID> // <reason>` and `restore` pair, or `[SuppressMessage("<category>", "<ID>", Justification = "<reason>")]`. Changing a rule's severity in config affects the whole repo, so ask it as a separate question.
 
 Dispatch the runner again after each batch. Done when it returns **clean**.
 

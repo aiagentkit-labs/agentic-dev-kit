@@ -1,6 +1,6 @@
 # Privacy controls
 
-The baseline the **Privacy Reviewer** applies to every change. An organization extends it per repo with `.github/review-controls/privacy.md` in the same format: its controls add to these, and a control with a baseline ID replaces that baseline control.
+The baseline the **Privacy Reviewer** applies to every change. A repo tailors it with `.github/review-controls/privacy.md`, or shares an organization's version through `extends`; see [CONTROLS.md](../CONTROLS.md).
 
 **Personal data** is anything that identifies a person directly or in combination: names, emails, phone numbers, addresses, IDs, IP addresses, device IDs, location, and free text a person typed.
 

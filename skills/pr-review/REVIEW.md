@@ -11,7 +11,7 @@ The PR is someone else's. You review it, the user decides what is said, and the 
 
 ## 2. Read the context
 
-Gather the title, description, author, target branch, build or check status, and every existing thread. Then the **spec**: the acceptance criteria of each linked work item (`wit_work_item` action `get`). With no item linked, the description is the spec, and the missing link becomes a finding (see [PRACTICES.md](../ado-implement/PRACTICES.md#pull-requests)).
+Gather the title, description, author, target branch, build or check status, and every existing thread. Then the **spec**: the acceptance criteria of each linked work item (`wit_work_item` action `get`). With no item linked, the description is the spec, and the missing link becomes a finding under `PR-05`.
 
 On a re-review, also note the commit you last reviewed and your own open threads.
 
@@ -26,7 +26,7 @@ Done when `HEAD` is the PR's latest commit, so the line numbers you read match t
 
 ## 4. Review
 
-Dispatch the reviewers exactly as in [ado-implement step 8](../ado-implement/SKILL.md#8-review): PR Reviewer, Security Reviewer, and Privacy Reviewer in parallel, with the organization controls read from `origin/<target>`, never from the PR's head. Each prompt carries the spec, the base `origin/<target>`, the full `git diff origin/<target>...HEAD`, and the existing threads, so they skip points already raised. On a re-review, send the diff since your last reviewed commit and your open threads, and ask whether each thread is now addressed.
+Dispatch the reviewers exactly as in [ado-implement step 8](../ado-implement/SKILL.md#8-review): PR Reviewer, Security Reviewer, and Privacy Reviewer in parallel, each with its controls from `controls.sh <topic> --ref origin/<target>`, never from the PR's head. Each prompt carries the spec, the base `origin/<target>`, the full `git diff origin/<target>...HEAD`, and the existing threads, so they skip points already raised. On a re-review, send the diff since your last reviewed commit and your open threads, and ask whether each thread is now addressed.
 
 When the diff breaks the small-PR budget, split the changed files into groups and dispatch one set of reviewers per group in parallel. Merge their tables, and add a finding that recommends splitting the PR.
 
