@@ -18,7 +18,7 @@ From the user's repo root, run [check.sh](../../scripts/check.sh) by its absolut
 A `FAIL` pauses the run. Ask one round with a question per failing check, offering two answers:
 
 - **Fix it**: show the fix and rerun the check. For missing tools, point the user at [install.sh](../../scripts/install.sh) or [install.ps1](../../scripts/install.ps1) to run in their own terminal, since installs and sign-ins can prompt for admin rights or credentials.
-- **Skip it**: rerun with `--skip <ids>` (Windows: `-SkipChecks <ids>`), where the ids are `git`, `az`, `gh`, or `node`, comma-separated. The check then reads `SKIP`. Say what the skip costs before the user picks it: for example, without `gh` the run can't open a GitHub PR at step 9.
+- **Skip it**: rerun with `--skip <ids>` (Windows: `-SkipChecks <ids>`), where the ids are `git`, `az`, `gh`, `node`, or `dotnet`, comma-separated. The check then reads `SKIP`. Say what the skip costs before the user picks it: for example, without `gh` the run can't open a GitHub PR at step 9.
 
 Recommend the fix when it's quick, else the skip when the check isn't needed until a later step. Before the step that needs a skipped tool, rerun its check without the skip, and pause there if it still fails.
 
@@ -120,7 +120,7 @@ Detect the project's stack and existing test tooling.
 
 **Gate**: the test plan: for each checklist entry, the layer(s), the seam, and the test name. Any new framework or package (Playwright, axe) is listed for the user to approve.
 
-Then work **red → green** in vertical slices, one checklist entry at a time: a failing test, the least code that passes it, rerun. Follow [TESTING.md](TESTING.md) for each layer. Keep the build, linter, and tests green for everything you touched, using the commands the repo defines (package scripts, solution files, Makefile, CI workflows).
+Then work **red → green** in vertical slices, one checklist entry at a time: a failing test, the least code that passes it, rerun. Follow [TESTING.md](TESTING.md) for each layer. Keep the build, linter, and tests green for everything you touched, using the commands the repo defines (package scripts, solution files, Makefile, CI workflows). For .NET and TypeScript/JavaScript, run the `lint` skill (call the Skill tool with "lint") on the touched files before the commit gate.
 
 Done when every checklist entry is ticked with its evidence: the test name and a passing run.
 

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Lint"
+  short_description: "Run, fix, and set up linters for .NET and TypeScript/JavaScript"

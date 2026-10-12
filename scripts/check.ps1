@@ -1,11 +1,11 @@
 <#
 Preflight and postflight checks for agentic-dev-kit skills; run from the user's repo root.
-Usage: check.ps1 -Phase pre|post -Skill ado-implement|pr-review|branch-policies [-SkipChecks git,az,gh,node]
+Usage: check.ps1 -Phase pre|post -Skill ado-implement|pr-review|branch-policies [-SkipChecks git,az,gh,node,dotnet]
 #>
 param(
   [Parameter(Mandatory)][ValidateSet('pre', 'post')][string]$Phase,
   [Parameter(Mandatory)][ValidateSet('ado-implement', 'pr-review', 'branch-policies')][string]$Skill,
-  [ValidateSet('git', 'az', 'gh', 'node')][string[]]$SkipChecks = @()
+  [ValidateSet('git', 'az', 'gh', 'node', 'dotnet')][string[]]$SkipChecks = @()
 )
 
 $script:Fails = 0
@@ -75,6 +75,11 @@ function Invoke-Pre {
   if ($Skill -eq 'ado-implement' -and (Test-Path package.json) -and -not (Skipped node 'node / npx')) {
     if ((Have node) -and (Have npx)) { Report PASS "node $(node --version)" }
     else { Report WARN 'node / npx' 'needed for Playwright and axe tests; run install.ps1' }
+  }
+
+  if ($Skill -eq 'ado-implement' -and (git ls-files '*.sln' '*.slnx' '*.csproj' | Select-Object -First 1) -and -not (Skipped dotnet 'dotnet SDK')) {
+    if (Have dotnet) { Report PASS "dotnet $(dotnet --version)" }
+    else { Report WARN 'dotnet SDK' 'needed to build, test, and lint .NET code; https://dot.net' }
   }
 
   if (git status --porcelain) { Report WARN 'working tree dirty' 'the skill will ask to stash, commit, or stop' }

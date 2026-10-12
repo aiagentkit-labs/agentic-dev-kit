@@ -8,6 +8,7 @@ An [Agent Plugin](https://agent-plugins.org/) that bundles skills for planning a
 | `pr` | Writes a PR body: summary visual, before/after evidence, merge danger | Automatic when writing a PR body, or `/pr` |
 | `pr-review` | Interview-driven PR review, from either side: address the comments on your PR until every thread is settled, or review someone else's PR and post comments and a vote | Automatic when you mention PR comments or reviewing a PR, or `/pr-review` |
 | `branch-policies` | Reads and sets branch policies on Azure Repos or GitHub with a **team** or **solo** profile; solo relaxes only who approves, for developers with no one to approve their PRs | Automatic when you mention branch policies or working alone, or `/branch-policies` |
+| `lint` | Runs and fixes the repo's linters and formatters on the files you touched, for .NET (`dotnet format`, analyzers, `.editorconfig`) and TypeScript/JavaScript (ESLint, Prettier, Biome), and sets up a baseline where a repo has none | Automatic when you mention linting or formatting, before commits in `ado-implement` and `pr-review`, or `/lint` |
 | `grilling` | Stress-tests a plan or decision, one round of questions at a time | Automatic on "grill" phrases, or `/grilling` |
 | `grill-me` | A relentless interview to sharpen a plan or design | `/grill-me` |
 | `teach` | Teaches a new concept inside your workspace | `/teach` |
@@ -29,7 +30,7 @@ pick interview mode   grill (decisions) or teach (decisions + why + recall)
   assess item         descriptive work item check, offer rewrite
   settle scope        acceptance checklist, small-PR split
   branch              off the base branch you choose, freshly fetched
-  implement           red -> green: unit, accessibility (axe), UI (Playwright)
+  implement           red -> green: unit, accessibility (axe), UI (Playwright); lint touched files
   commit              message drafted from the work item, linked to it
   review              PR Reviewer subagent (read-only) -> findings -> fixes
   pull request        body via `pr`, pushed and linked on your yes
@@ -86,11 +87,11 @@ The Security and Privacy reviewers apply a baseline ([security](review-controls/
 
 ## Setup
 
-The skills check their own prerequisites: a **preflight** before each run (git version, `az` + `azure-devops` extension, `gh` and its sign-in for GitHub repos, `node` for web projects, working-tree state) and a **postflight** after (working tree, stash, starting branch restored, branch pushed, temp files cleaned). Run them yourself from a repo:
+The skills check their own prerequisites: a **preflight** before each run (git version, `az` + `azure-devops` extension, `gh` and its sign-in for GitHub repos, `node` for web projects, the .NET SDK for .NET projects, working-tree state) and a **postflight** after (working tree, stash, starting branch restored, branch pushed, temp files cleaned). Run them yourself from a repo:
 
 ```bash
 <plugin>/scripts/check.sh pre ado-implement     # or: pr-review
-<plugin>/scripts/check.sh pre ado-implement --skip gh   # skip checks you'll fix later: git, az, gh, node
+<plugin>/scripts/check.sh pre ado-implement --skip gh   # skip checks you'll fix later: git, az, gh, node, dotnet
 <plugin>/scripts/check.sh post ado-implement
 ```
 
