@@ -5,20 +5,50 @@ description: Take Azure DevOps (ADO) work items from backlog to pull request thr
 
 Turn an ADO work item into a pull request ready for review: find the item, branch, implement test-first, commit, have it reviewed, and open the PR. The item's **acceptance criteria** is the completion criterion: it is done only when every criterion maps to evidence (a passing test or an observed behaviour).
 
-The user steers through **gates**. Each step below ends at one: present what you found and the decisions it needs as a single interview round, then wait. Facts you can look up (code, config, git, linked items) are yours to find; decisions are the user's.
+The user steers through **gates**. Each step below ends at one: present what you found and the decisions it needs as one interview **round** (see [Rounds](#rounds)), then wait. Facts you can look up (code, config, git, linked items) are yours to find; decisions are the user's. These steps are your plan: track progress by them, and open every gate with `Step N/10 · <step name> · Round k`.
 
-**Writes to shared systems** (ADO field, state, comment, or link edits; `git push`; creating or updating a PR) each need the user's yes at the moment of the write. Credentials never pass through chat.
+**Writes to shared systems** (ADO field, state, comment, or link edits; `git push`; creating or updating a PR) each need the user's yes at the moment of the write. Credentials never pass through chat. Write every temporary file (PR body, JSON payloads) under `.git/agentic-dev-kit/tmp/`.
 
 At every gate, check the work against [PRACTICES.md](PRACTICES.md) (descriptive work items, small PRs, branches, commits, PRs). When a practice is missed, name it and recommend the fix in that gate's round.
 
-**Preflight and postflight** bracket every run. From the user's repo root, run [check.sh](../../scripts/check.sh) by its absolute path (`check.sh pre ado-implement`; on Windows, `check.ps1 -Phase pre -Skill ado-implement`) before step 0, and with `post` after step 10. A `FAIL` stops the run: show the fixes, and for missing tools point the user at [install.sh](../../scripts/install.sh) or [install.ps1](../../scripts/install.ps1) to run in their own terminal, since installs and sign-ins can prompt for admin rights or credentials. A `WARN` is mentioned and the run continues. Write every temporary file (PR body, JSON payloads) under `.git/agentic-dev-kit/tmp/`, which the preflight creates and a clean postflight removes.
+## Preflight
+
+From the user's repo root, run [check.sh](../../scripts/check.sh) by its absolute path: `check.sh pre ado-implement` (Windows: `check.ps1 -Phase pre -Skill ado-implement`). Show its table to the user. A `FAIL` stops the run: show the fixes, and for missing tools point the user at [install.sh](../../scripts/install.sh) or [install.ps1](../../scripts/install.ps1) to run in their own terminal, since installs and sign-ins can prompt for admin rights or credentials. A `WARN` is mentioned and the run continues.
+
+Done when the table is on screen with no `FAIL`. The matching postflight runs at the end of step 10.
+
+## Rounds
+
+Every gate is a round in this format, the `grilling` skill's, written out here so it holds whether or not that skill loads:
+
+- Ask the whole **frontier**: every open decision whose prerequisites are settled, numbered. A question that depends on another open one waits for the next round.
+- Each question carries your recommended answer, worded so "yes" accepts it.
+- If the user asks for a different pace, such as one question at a time, follow it. The steps and gates stay.
+
+```markdown
+**Step 4/10 · Settle scope · Round 1**
+
+❓ **Q1 - <title>**: <question, with lettered options when there are any>
+
+➡️ <recommended answer>
+
+📘 **Why:** <two lines> · **Source:** <link> · **Check:** <recall question>
+
+---
+
+❓ **Q2 - <title>**: …
+
+Reply per question, for example: `1 yes · 2 b · 3 no, because …`
+```
+
+The 📘 line is **teach** mode only. Its source is about *that* decision: the docs for the technology or practice in question, not a general process page. Mark the recall answers at the start of the next round, and correct any misses in a line each.
 
 ## 0. Pick the interview mode
 
-Ask once, before step 1:
+Ask once, unless the user's message already names it:
 
-- **Grill**: run every gate as a `grilling` round (call the Skill tool with "grilling"): numbered questions, each with your recommended answer, worded so "yes" accepts it.
-- **Teach**: the same rounds, plus for each practice in play a two-line *why*, its primary-source link from [PRACTICES.md](PRACTICES.md) or [TESTING.md](TESTING.md), and one recall question the user answers before the round closes. When a topic deserves more than a gate can hold, suggest the user run `/teach <topic>` afterwards.
+- **Grill**: rounds as above.
+- **Teach**: rounds with the 📘 line on every question. When a topic deserves more than a round can hold, suggest the user run `/teach <topic>` afterwards.
 
 The user can switch modes at any gate.
 
@@ -44,13 +74,13 @@ Done when one channel returns the org's projects.
 
 Fetch the item with its relations: title, type, state, description, acceptance criteria (`Microsoft.VSTS.Common.AcceptanceCriteria`), repro steps for bugs (`Microsoft.VSTS.TCM.ReproSteps`), the parent for context, and children as sub-scope. Fields are HTML; read them as plain text.
 
-Score it against **Descriptive work items** in [PRACTICES.md](PRACTICES.md).
+Score it against **Descriptive work items** in [PRACTICES.md](PRACTICES.md). Then draft the item as it should read: title, description, and acceptance criteria as numbered Given / When / Then. Fill each gap with your recommended default, and mark every default as an **assumption**.
 
-**Gate**: show the score. For each gap, show your drafted replacement text and offer to write it back to the item.
+**Gate**: this gate always runs, even when the user asks to go straight to scope questions, because the draft is what those questions refine. Show a scorecard (field, ready or not, gap), the full draft, and a round whose frontier is the draft's assumptions. Done when the user has accepted or amended every assumption. Then offer to write the agreed draft back to the item.
 
 ## 4. Settle scope
 
-Write the acceptance criteria as a numbered checklist. Pair each entry with the check that proves it and its test layer from [TESTING.md](TESTING.md). Where criteria are missing, vague, or contradict the code, grill the user on that item until each entry is concrete.
+Turn the agreed criteria into a numbered checklist. Pair each entry with the check that proves it and its test layer from [TESTING.md](TESTING.md). Run further rounds on anything still open, or anything that contradicts the code.
 
 Estimate the diff size. If it breaks the **Small PRs** budget in [PRACTICES.md](PRACTICES.md), propose a split and the child tasks it creates.
 
@@ -129,4 +159,4 @@ Done when the PR URL is returned and the item is linked to it.
 
 Report the branch, commits, PR URL, each acceptance criterion with its evidence, and anything deferred or split off. Then offer the remaining ADO writes (state change, a comment with the PR link and evidence summary) and run only those the user approves. When reviewers comment, the `pr-review` skill works the threads from the author's side. In teach mode, close with a recap of the practices applied and the recall questions the user missed.
 
-Then run the postflight. Alongside it, confirm the remote state with a fresh read: the PR exists, targets the base, links the item, and lists any sign-off teams as reviewers. Done when the postflight passes and the remote state matches.
+Then run the postflight: `check.sh post ado-implement`, and show its table. Alongside it, confirm the remote state with a fresh read: the PR exists, targets the base, links the item, and lists any sign-off teams as reviewers. Done when the postflight passes and the remote state matches.
