@@ -10,59 +10,36 @@ Make the files the user touched pass the repo's linters and formatters, and set 
 
 **Scope** is the touched files: changed against the base branch (`git diff --name-only --diff-filter=d origin/<base>...HEAD`) plus uncommitted ones (`git status --porcelain`). Lint the whole repo only when the user asks, and land a whole-repo reformat as its own PR, so it never buries a feature's diff.
 
-## 1. Detect
+## 1. Detect and check
 
-For each stack in the repo, find its tools and the commands the repo already uses:
+Dispatch the **Lint Runner** subagent with the repo root, the base ref, and the scope's file list. In clients without that agent, dispatch a general subagent whose prompt is the body of [lint-runner](../../com.github.copilot/agents/lint-runner.agent.md), followed by the same inputs. It runs in check mode and returns the repo's tools and commands, anything it couldn't run, and the findings sorted into **auto-fix**, **code change**, and **rule question**. Keeping that output in the subagent keeps long lint logs out of the conversation.
 
-| | TypeScript / JavaScript | .NET |
-|---|---|---|
-| Stack | `package.json`, `tsconfig*.json` | `*.sln`, `*.slnx`, `*.csproj`, `Directory.Build.props` |
-| Linter | `eslint.config.*`, `.eslintrc*`, `eslintConfig` in `package.json`, `biome.json(c)` | `AnalysisLevel` / `EnforceCodeStyleInBuild` in `Directory.Build.props` or project files, `dotnet_diagnostic.*` in `.editorconfig` or `.globalconfig`, analyzer packages (`StyleCop.Analyzers`, …) |
-| Formatter | `.prettierrc*`, `prettier` in `package.json`, `biome.json(c)` | `.editorconfig` |
-| Commands | `package.json` scripts (`lint`, `format`, `check`), lint-staged or husky hooks, CI workflows | CI workflows, build scripts |
+A **Not run** entry is a tool problem: show its error and fix it with the user, installing anything missing on their yes, then dispatch again.
 
-Take the package manager from the lockfile (`package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `bun.lock`). Confirm the tools run: `node --version` and `npx --version`, or `dotnet --version` (`dotnet format` ships with the .NET 6+ SDK).
-
-Done when each stack has a check command and a fix command for its linter and its formatter, taken from the repo, or is marked **none**.
+Done when the runner returns with nothing under **Not run**.
 
 ## 2. Set up
 
-Only for pieces marked **none**.
+Only for pieces the runner marked **none**.
 
 **Gate**: for each missing piece, the baseline from [SETUP.md](SETUP.md): files to add, packages to install, scripts to define, and the options it lists. The user can decline a piece; it stays **none** and goes in the report.
 
-After installing, run the new check once over the whole repo and report the count. When existing code produces many findings, recommend landing the setup as its own PR before the feature work, or the gentler starting level that SETUP.md names.
+After installing, dispatch the runner with the scope **whole repo** and report its counts. When existing code produces many findings, recommend landing the setup as its own PR before the feature work, or the gentler starting level that SETUP.md names.
 
 Done when every **none** piece is set up or declined.
 
-## 3. Check
+## 3. Fix
 
-Run each check command on the scope. Where the repo has config but no script, use:
+**Gate**: the runner's count in each group, the auto-fixes to apply, the code changes you propose, and one question per rule question.
 
-- **ESLint**: `npx eslint <files>`. **Prettier**: `npx prettier --check <files>`. **Biome**: `npx biome check <files>`.
-- **TypeScript**: `npx tsc --noEmit -p <tsconfig>` over the whole project, since types cross files, unless a script already covers it.
-- **.NET**: `dotnet format <solution-or-project> --verify-no-changes --include <files>` (whitespace, code style, and analyzers; non-zero exit when anything would change). Then `dotnet build <solution-or-project>` and keep the warnings in touched files, since some analyzers report only during a build.
-
-Sort every finding into one group:
-
-- **Auto-fixable**: the fix command resolves it.
-- **Code change**: needs an edit by hand.
-- **Rule question**: the rule looks wrong for this code, so it's the user's call.
-
-Done when every finding in scope is in a group.
-
-## 4. Fix
-
-**Gate**: the count in each group, the auto-fixes to apply, the code changes you propose, and one question per rule question.
-
-- **Auto-fixes**: run the fix commands on the scope: `npx eslint --fix <files>`, `npx prettier --write <files>`, `npx biome check --write <files>`, `dotnet format <solution-or-project> --include <files>`.
+- **Auto-fixes**: run the runner's fix commands on the scope.
 - **Code changes**: edit by hand, then rerun the tests that cover the edit.
 - **Rule questions**: on the user's yes, suppress at the narrowest scope with the reason in the code: `// eslint-disable-next-line <rule> -- <reason>`, `// biome-ignore <rule>: <reason>`, a `#pragma warning disable <ID> // <reason>` and `restore` pair, or `[SuppressMessage("<category>", "<ID>", Justification = "<reason>")]`. Changing a rule's severity in config affects the whole repo, so ask it as a separate question.
 
-Rerun step 3 after each batch. Done when every check command exits 0 on the scope.
+Dispatch the runner again after each batch. Done when it returns **clean**.
 
-## 5. Report
+## 4. Report
 
-A table per stack: each command, its result, and the counts fixed and suppressed, plus any piece left **none**. Offer to add missing check commands to CI, as a local edit on the user's yes.
+A table per stack: each check command, its result, and the counts fixed and suppressed, plus any piece left **none**. Offer to add missing check commands to CI, as a local edit on the user's yes.
 
 In teach mode, link each rule you fixed or suppressed to its documentation: `https://eslint.org/docs/latest/rules/<rule>`, `https://typescript-eslint.io/rules/<rule>`, `https://biomejs.dev/linter/rules/<rule>`, `https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/<caXXXX>` for CA rules, and `…/code-analysis/style-rules/<ideXXXX>` for IDE rules.
