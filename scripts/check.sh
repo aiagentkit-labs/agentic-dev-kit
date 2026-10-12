@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 # Preflight and postflight checks for agentic-dev-kit skills; run from the user's repo root.
-# Usage: check.sh pre|post <ado-implement|pr-review|branch-policies>
+# Usage: check.sh pre|post <ado-implement|pr-review|branch-policies> [--skip git,az,gh,node]
 set -u
 
 phase="${1:-}"
 skill="${2:-}"
-case "$phase" in pre|post) ;; *) echo "usage: check.sh pre|post <ado-implement|pr-review|branch-policies>" >&2; exit 2 ;; esac
+usage="usage: check.sh pre|post <ado-implement|pr-review|branch-policies> [--skip git,az,gh,node]"
+case "$phase" in pre|post) ;; *) echo "$usage" >&2; exit 2 ;; esac
 case "$skill" in ado-implement|pr-review|branch-policies) ;; *) echo "unknown skill: $skill" >&2; exit 2 ;; esac
+skip=""
+case "${3:-}" in
+  "") ;;
+  --skip) skip="$(printf '%s' "${4:-}" | tr -d ' ')" ;;
+  *) echo "$usage" >&2; exit 2 ;;
+esac
 
 fails=0
 report() {
@@ -14,6 +21,13 @@ report() {
   if [ "$1" = FAIL ]; then fails=$((fails + 1)); fi
 }
 have() { command -v "$1" >/dev/null 2>&1; }
+# skipped <id> <label>: report SKIP and succeed when the user chose to skip check <id>.
+skipped() {
+  case ",$skip," in
+    *",$1,"*) report SKIP "$2" "skipped by the user"; return 0 ;;
+  esac
+  return 1
+}
 
 if ! have git; then report FAIL "git" "not installed; run install.sh"; exit 1; fi
 if ! git rev-parse --git-dir >/dev/null 2>&1; then report FAIL "git repository" "run from inside a git work tree"; exit 1; fi
@@ -31,7 +45,8 @@ pre() {
   major="${ver%%.*}"
   rest="${ver#*.}"
   minor="${rest%%.*}"
-  if [ "$major" -gt 2 ] || { [ "$major" -eq 2 ] && [ "$minor" -ge 23 ]; }; then
+  if skipped git "git $ver"; then :
+  elif [ "$major" -gt 2 ] || { [ "$major" -eq 2 ] && [ "$minor" -ge 23 ]; }; then
     report PASS "git $ver"
   else
     report FAIL "git $ver" "need 2.23+ for 'git switch'; run install.sh"
@@ -43,7 +58,8 @@ pre() {
     report PASS "origin: $host"
   fi
 
-  if have az; then
+  if skipped az "az CLI"; then :
+  elif have az; then
     if az extension show --name azure-devops >/dev/null 2>&1; then
       report PASS "az + azure-devops"
     else
@@ -58,9 +74,16 @@ pre() {
     report WARN "az CLI" "needed only when the ADO MCP server can't sign in; run install.sh"
   fi
 
-  if [ "$host" = github ]; then
-    if ! have gh; then
+  if [ "$host" = github ] && ! skipped gh "gh CLI"; then
+    gh_path="$(command -v gh 2>/dev/null || true)"
+    if [ -z "$gh_path" ]; then
       report FAIL "gh CLI" "needed for GitHub PRs; run install.sh"
+    elif ! gh --version >/dev/null 2>&1; then
+      hint="$gh_path won't run in this session"
+      if [ "$(uname)" = Darwin ] && ! file -bL "$gh_path" | grep -q "$(uname -m)"; then
+        hint="$hint: it's built for another CPU than $(uname -m)"
+      fi
+      report FAIL "gh CLI" "$hint. If gh works in your terminal, restart VS Code so it reloads PATH; otherwise reinstall gh"
     elif ! gh auth status >/dev/null 2>&1; then
       report FAIL "gh auth" "run 'gh auth login' in your own terminal"
     else
@@ -68,7 +91,7 @@ pre() {
     fi
   fi
 
-  if [ "$skill" = ado-implement ] && [ -f package.json ]; then
+  if [ "$skill" = ado-implement ] && [ -f package.json ] && ! skipped node "node / npx"; then
     if have node && have npx; then
       report PASS "node $(node --version)"
     else
@@ -87,6 +110,7 @@ pre() {
     echo "skill=$skill"
     echo "start_branch=$(git symbolic-ref --quiet --short HEAD || git rev-parse HEAD)"
     echo "stash_count=$(git stash list | wc -l | tr -d ' ')"
+    echo "skipped=$skip"
   } >"$state_dir/state"
   report PASS "state recorded" "$state_dir"
 }

@@ -90,10 +90,13 @@ The skills check their own prerequisites: a **preflight** before each run (git v
 
 ```bash
 <plugin>/scripts/check.sh pre ado-implement     # or: pr-review
+<plugin>/scripts/check.sh pre ado-implement --skip gh   # skip checks you'll fix later: git, az, gh, node
 <plugin>/scripts/check.sh post ado-implement
 ```
 
 Install anything missing with [`scripts/install.sh`](scripts/install.sh) (macOS via Homebrew; Linux prints the commands) or [`scripts/install.ps1`](scripts/install.ps1) (Windows via winget). Both show what they'll run and ask first; sign-ins (`az login`, `gh auth login`) stay with you.
+
+If a tool works in your terminal but the check says it won't run, VS Code is still using the PATH it read at launch. Quit and reopen VS Code after changing your shell profile.
 
 ## Guardrails
 

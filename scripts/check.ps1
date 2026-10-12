@@ -1,10 +1,11 @@
 <#
 Preflight and postflight checks for agentic-dev-kit skills; run from the user's repo root.
-Usage: check.ps1 -Phase pre|post -Skill ado-implement|pr-review|branch-policies
+Usage: check.ps1 -Phase pre|post -Skill ado-implement|pr-review|branch-policies [-SkipChecks git,az,gh,node]
 #>
 param(
   [Parameter(Mandatory)][ValidateSet('pre', 'post')][string]$Phase,
-  [Parameter(Mandatory)][ValidateSet('ado-implement', 'pr-review', 'branch-policies')][string]$Skill
+  [Parameter(Mandatory)][ValidateSet('ado-implement', 'pr-review', 'branch-policies')][string]$Skill,
+  [ValidateSet('git', 'az', 'gh', 'node')][string[]]$SkipChecks = @()
 )
 
 $script:Fails = 0
@@ -13,6 +14,11 @@ function Report([string]$Status, [string]$Check, [string]$Hint = '') {
   if ($Status -eq 'FAIL') { $script:Fails++ }
 }
 function Have([string]$Name) { [bool](Get-Command $Name -ErrorAction SilentlyContinue) }
+# Report SKIP and return true when the user chose to skip check $Id.
+function Skipped([string]$Id, [string]$Label) {
+  if ($SkipChecks -contains $Id) { Report SKIP $Label 'skipped by the user'; return $true }
+  $false
+}
 
 if (-not (Have git)) { Report FAIL 'git' 'not installed; run install.ps1'; exit 1 }
 git rev-parse --git-dir *> $null
@@ -27,7 +33,8 @@ else { 'unknown' }
 function Invoke-Pre {
   $ver = ((git --version) -split ' ')[2]
   $parts = $ver.Split('.')
-  if ([int]$parts[0] -gt 2 -or ([int]$parts[0] -eq 2 -and [int]$parts[1] -ge 23)) {
+  if (Skipped git "git $ver") { }
+  elseif ([int]$parts[0] -gt 2 -or ([int]$parts[0] -eq 2 -and [int]$parts[1] -ge 23)) {
     Report PASS "git $ver"
   } else {
     Report FAIL "git $ver" "need 2.23+ for 'git switch'; run install.ps1"
@@ -39,7 +46,8 @@ function Invoke-Pre {
     Report PASS "origin: $hostKind"
   }
 
-  if (Have az) {
+  if (Skipped az 'az CLI') { }
+  elseif (Have az) {
     az extension show --name azure-devops *> $null
     if ($LASTEXITCODE -eq 0) { Report PASS 'az + azure-devops' }
     else { Report WARN 'azure-devops extension' 'az extension add --name azure-devops' }
@@ -50,16 +58,21 @@ function Invoke-Pre {
     Report WARN 'az CLI' "needed only when the ADO MCP server can't sign in; run install.ps1"
   }
 
-  if ($hostKind -eq 'github') {
+  if ($hostKind -eq 'github' -and -not (Skipped gh 'gh CLI')) {
     if (-not (Have gh)) { Report FAIL 'gh CLI' 'needed for GitHub PRs; run install.ps1' }
     else {
-      gh auth status *> $null
-      if ($LASTEXITCODE -eq 0) { Report PASS 'gh + auth' }
-      else { Report FAIL 'gh auth' "run 'gh auth login' in your own terminal" }
+      gh --version *> $null
+      if ($LASTEXITCODE -ne 0) {
+        Report FAIL 'gh CLI' "$((Get-Command gh).Source) won't run in this session. If gh works in your terminal, restart VS Code so it reloads PATH; otherwise reinstall gh"
+      } else {
+        gh auth status *> $null
+        if ($LASTEXITCODE -eq 0) { Report PASS 'gh + auth' }
+        else { Report FAIL 'gh auth' "run 'gh auth login' in your own terminal" }
+      }
     }
   }
 
-  if ($Skill -eq 'ado-implement' -and (Test-Path package.json)) {
+  if ($Skill -eq 'ado-implement' -and (Test-Path package.json) -and -not (Skipped node 'node / npx')) {
     if ((Have node) -and (Have npx)) { Report PASS "node $(node --version)" }
     else { Report WARN 'node / npx' 'needed for Playwright and axe tests; run install.ps1' }
   }
@@ -74,6 +87,7 @@ function Invoke-Pre {
     "skill=$Skill"
     "start_branch=$startBranch"
     "stash_count=$(@(git stash list).Count)"
+    "skipped=$($SkipChecks -join ',')"
   ) | Set-Content -Path (Join-Path $stateDir 'state')
   Report PASS 'state recorded' $stateDir
 }
