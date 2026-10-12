@@ -8,7 +8,7 @@
     {
       "name": "agentic-dev-kit",
       "source": "./",
-      "description": "Stress-test plans, learn new concepts, and implement Azure DevOps work items end to end."
+      "description": "Stress-test plans, learn new concepts, and take Azure DevOps work items to a tested pull request."
     }
   ]
 }

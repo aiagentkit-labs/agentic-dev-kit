@@ -1,47 +1,132 @@
 ---
 name: ado-implement
-description: Implement Azure DevOps (ADO) work items end to end. Use when the user mentions ADO, Azure Boards, a work item / bug / user story ID or "AB#123", or asks to pick up their assigned items.
+description: Take Azure DevOps (ADO) work items from backlog to pull request through an interview at every gate. Use when the user mentions ADO, Azure Boards, a work item / bug / user story ID or "AB#123", or asks to pick up their assigned items.
 ---
 
-Turn ADO work items into implemented, tested branches. Each item's **acceptance criteria** is its completion criterion: an item is done only when every criterion maps to evidence (a passing test or an observed behaviour).
+Turn an ADO work item into a pull request ready for review: find the item, branch, implement test-first, commit, have it reviewed, and open the PR. The item's **acceptance criteria** is the completion criterion: it is done only when every criterion maps to evidence (a passing test or an observed behaviour).
 
-Reading from ADO is free. **Writing to ADO** (state changes, comments, field edits, links) touches a shared system, so confirm with the user before each write.
+The user steers through **gates**. Each step below ends at one: present what you found and the decisions it needs as a single interview round, then wait. Facts you can look up (code, config, git, linked items) are yours to find; decisions are the user's.
+
+**Writes to shared systems** (ADO field, state, comment, or link edits; `git push`; creating or updating a PR) each need the user's yes at the moment of the write. Credentials never pass through chat.
+
+At every gate, check the work against [PRACTICES.md](PRACTICES.md) (descriptive work items, small PRs, branches, commits, PRs). When a practice is missed, name it and recommend the fix in that gate's round.
+
+**Preflight and postflight** bracket every run. From the user's repo root, run [check.sh](../../scripts/check.sh) by its absolute path (`check.sh pre ado-implement`; on Windows, `check.ps1 -Phase pre -Skill ado-implement`) before step 0, and with `post` after step 10. A `FAIL` stops the run: show the fixes, and for missing tools point the user at [install.sh](../../scripts/install.sh) or [install.ps1](../../scripts/install.ps1) to run in their own terminal, since installs and sign-ins can prompt for admin rights or credentials. A `WARN` is mentioned and the run continues. Write every temporary file (PR body, JSON payloads) under `.git/agentic-dev-kit/tmp/`, which the preflight creates and a clean postflight removes.
+
+## 0. Pick the interview mode
+
+Ask once, before step 1:
+
+- **Grill**: run every gate as a `grilling` round (call the Skill tool with "grilling"): numbered questions, each with your recommended answer, worded so "yes" accepts it.
+- **Teach**: the same rounds, plus for each practice in play a two-line *why*, its primary-source link from [PRACTICES.md](PRACTICES.md) or [TESTING.md](TESTING.md), and one recall question the user answers before the round closes. When a topic deserves more than a gate can hold, suggest the user run `/teach <topic>` afterwards.
+
+The user can switch modes at any gate.
 
 ## 1. Connect
 
 Use the first channel that works:
 
-1. **Azure DevOps MCP tools** (`core_list_orgs`, `wit_work_item`, …) from this plugin's hosted server. Its endpoint carries no organization, so pass the org on every call. Resolve the org from, in order: the user's message, a `dev.azure.com/<org>` or `<org>.visualstudio.com` git remote, then `core_list_orgs` with the user picking. The client handles the Microsoft Entra sign-in prompt.
-2. **`az boards` CLI**, when the MCP tools are absent or can't authenticate (orgs not backed by Entra, or clients that can't complete the Entra flow). Add the extension with `az extension add --name azure-devops` if missing, then `az devops configure --defaults organization=<url> project=<name>`. Auth comes from `az login`, or a PAT the user exports as `AZURE_DEVOPS_EXT_PAT` in their own terminal.
+1. **Azure DevOps MCP tools** (`core_list_orgs`, `wit_work_item`, `repo_pull_request_write`, …) from this plugin's hosted server. Its endpoint carries no organization, so pass the org on every call. Resolve the org from, in order: the user's message, a `dev.azure.com/<org>` or `<org>.visualstudio.com` git remote, then `core_list_orgs` with the user picking. The client handles the Microsoft Entra sign-in prompt.
+2. **`az` CLI**, when the MCP tools are absent or can't authenticate. Add the extension with `az extension add --name azure-devops` if missing, then `az devops configure --defaults organization=<url> project=<name>`. Auth comes from `az login`, or a PAT the user exports as `AZURE_DEVOPS_EXT_PAT` in their own terminal.
 
-Credentials never pass through chat. Done when one channel returns the org's projects.
+Also note where the code is hosted (Azure Repos or GitHub) from `git remote -v`; it decides commit links and PR creation later.
 
-## 2. Select items
+Done when one channel returns the org's projects.
+
+## 2. Select the item
 
 - IDs given (`123`, `AB#123`): use those.
-- Otherwise list the user's open items (MCP: `wit_work_item` action `my`; CLI: WIQL on `[System.AssignedTo] = @Me`, excluding closed states, ordered by priority), show them, and let the user pick. Apply any filter they give: iteration, area path, tag, type.
+- Otherwise list the user's open items (MCP: `wit_work_item` action `my`; CLI: WIQL on `[System.AssignedTo] = @Me`, excluding closed states, ordered by priority) and apply any filter they give: iteration, area path, tag, type.
 
-## 3. Read each item
+**Gate**: the user picks. One item per branch and PR; several picks run through steps 3–10 one at a time, in priority order.
 
-Fetch the item with its relations and pull: title, type, state, description, acceptance criteria (`Microsoft.VSTS.Common.AcceptanceCriteria`), repro steps for bugs (`Microsoft.VSTS.TCM.ReproSteps`), the parent for context, and children as sub-scope. Fields are HTML; read them as plain text.
+## 3. Read and assess the item
+
+Fetch the item with its relations: title, type, state, description, acceptance criteria (`Microsoft.VSTS.Common.AcceptanceCriteria`), repro steps for bugs (`Microsoft.VSTS.TCM.ReproSteps`), the parent for context, and children as sub-scope. Fields are HTML; read them as plain text.
+
+Score it against **Descriptive work items** in [PRACTICES.md](PRACTICES.md).
+
+**Gate**: show the score. For each gap, show your drafted replacement text and offer to write it back to the item.
 
 ## 4. Settle scope
 
-Write the acceptance criteria as a numbered checklist, each entry paired with the check that will prove it. When criteria are missing, vague, or contradict the code, run the `grilling` skill on that item. Facts you can look up (code, config, linked items) are yours to find; decisions are the user's.
+Write the acceptance criteria as a numbered checklist. Pair each entry with the check that proves it and its test layer from [TESTING.md](TESTING.md). Where criteria are missing, vague, or contradict the code, grill the user on that item until each entry is concrete.
 
-Done when every entry has a concrete, verifiable check and the user has confirmed the list.
+Estimate the diff size. If it breaks the **Small PRs** budget in [PRACTICES.md](PRACTICES.md), propose a split and the child tasks it creates.
 
-## 5. Implement
+**Gate**: the user confirms the checklist and any split. Done when every entry has a concrete, verifiable check.
 
-One item per branch, in priority order:
+## 5. Branch
 
-1. Follow the repo's own conventions first: `AGENTS.md`, `CONTRIBUTING.md`, `.github/copilot-instructions.md`, and existing branch and commit history. Absent a convention, branch from an up-to-date default branch as `feat/<id>-<slug>` (story, task, feature) or `fix/<id>-<slug>` (bug).
-2. Work test-first where the change is testable, using the repo's existing test framework.
-3. Keep the build and tests green for everything you touched; find the commands in the repo (package scripts, solution files, Makefile, CI workflows).
-4. Link every commit to the item: `AB#<id>` on GitHub-hosted repos (requires the Azure Boards app), `#<id>` on Azure Repos.
+1. Read the repo's conventions: `AGENTS.md`, `CONTRIBUTING.md`, `.github/copilot-instructions.md`, branch policies, and existing branch and commit history.
+2. Find candidate base branches: the remote default (`git symbolic-ref refs/remotes/origin/HEAD`), plus any long-lived branches the conventions name (`develop`, `release/*`).
+3. **Gate**: the base branch, and the new branch name: the repo's convention, else `feat/<id>-<slug>` (story, task, feature) or `fix/<id>-<slug>` (bug).
+4. With uncommitted changes present, ask whether to stash, commit, or stop; keep the user's work intact.
+5. `git fetch origin <base>`, then `git switch -c <branch> origin/<base>`.
 
-Done when every checklist entry is ticked with its evidence.
+Done when the new branch is checked out at the tip of the freshly fetched base.
 
-## 6. Report and hand back
+## 6. Implement test-first
 
-Per item, report the branch, commits, each acceptance criterion with its evidence, and anything deferred. Then offer the ADO writes (state change, a comment summarising branch and evidence) and run only those the user approves. Pushing and opening a PR also wait for the user's go-ahead.
+Detect the project's stack and existing test tooling.
+
+**Gate**: the test plan: for each checklist entry, the layer(s), the seam, and the test name. Any new framework or package (Playwright, axe) is listed for the user to approve.
+
+Then work **red → green** in vertical slices, one checklist entry at a time: a failing test, the least code that passes it, rerun. Follow [TESTING.md](TESTING.md) for each layer. Keep the build, linter, and tests green for everything you touched, using the commands the repo defines (package scripts, solution files, Makefile, CI workflows).
+
+Done when every checklist entry is ticked with its evidence: the test name and a passing run.
+
+## 7. Commit
+
+Stage only files that belong to this item.
+
+Draft the message from the item, following the repo's convention; absent one, use the **Commits** format in [PRACTICES.md](PRACTICES.md):
+
+```text
+feat(<scope>): <imperative summary of the item title>
+
+<why, from the item's description>
+<what changed, one line per notable change>
+
+AB#<id>    (GitHub-hosted)   or   #<id>    (Azure Repos)
+```
+
+**Gate**: the staged file list and message. Prefer one commit per vertical slice when slices are independently meaningful.
+
+## 8. Review
+
+Dispatch three read-only reviewers as parallel subagents: **PR Reviewer**, **Security Reviewer**, and **Privacy Reviewer**. Each starts with an empty context, so every prompt carries: the item's ID and title, the acceptance checklist with each entry's evidence, the base ref and branch, and the full output of `git diff origin/<base>...HEAD`.
+
+The security and privacy prompts also carry the organization's controls and scanner output:
+
+- **Controls**: `git show origin/<base>:.github/review-controls/security.md` (and `privacy.md`), or "none" when absent. Always read them from the base, never from the branch under review, so a change can't rewrite its own controls.
+- **Scanners**: the commands listed under Scanners in the plugin's [review-controls](../../review-controls/) baseline and in those files. Show the user the exact commands and run only the ones they approve, then pass each output along.
+
+In clients without these agents, dispatch general subagents whose prompts are the bodies of [pr-reviewer](../../com.github.copilot/agents/pr-reviewer.agent.md), [security-reviewer](../../com.github.copilot/agents/security-reviewer.agent.md), and [privacy-reviewer](../../com.github.copilot/agents/privacy-reviewer.agent.md), each followed by the same inputs.
+
+Merge the three tables. Fix every blocker and should-fix, rerunning the tests each fix touches. Fold each fix into the commit it belongs to (`git commit --fixup <sha>`, then `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash origin/<base>`). Re-dispatch the reviewers that reported blockers while any remain.
+
+**Gate**: the merged findings, what you fixed, the nits for the user to accept or skip, and each `escalate` finding with the sign-off team its controls name. Done when every verdict is **ready**, or **needs sign-off** with the user's agreement to carry the escalations into the PR.
+
+## 9. Open the pull request
+
+Re-measure the diff: `git diff --shortstat origin/<base>...HEAD`. Recommend a split again if it outgrew the budget.
+
+Write the body with the `pr` skill (call the Skill tool with "pr"). Put the screenshots and passing test runs from step 6 in its Evidence section, and append the work item link and the acceptance checklist with each entry's evidence.
+
+**Gate**: title (the item title plus its ID), target branch (the base from step 5), draft or published, reviewers (including each sign-off team from step 8's `escalate` findings, as required reviewers), merge strategy (squash recommended where allowed), auto-complete when policies pass, and the full body. List open escalations in the body's Merge Danger section. Recommend a draft until the pipeline is green.
+
+**Solo**: when nobody else can approve, check the branch's approval policy. If it would leave the PR impossible to complete, say so and offer the `branch-policies` skill's solo profile rather than any bypass. In solo, post the merged step 8 findings on the PR as its review record. Have the user acknowledge each `escalate` finding in a PR comment. Then, on the user's yes, approve and set auto-complete: `az repos pr set-vote --vote approve` and `az repos pr update --auto-complete true`, or `gh pr merge --auto --squash`.
+
+On the user's yes, push with `git push -u origin <branch>`, then create the PR:
+
+- **Azure Repos**: MCP `repo_pull_request_write` action `create`, then `wit_work_item_link_write` action `link_to_pull_request`. CLI: `az repos pr create --source-branch <branch> --target-branch <base> --title <title> --description <body> --work-items <id> [--draft true] [--auto-complete true --squash true --delete-source-branch true]`.
+- **GitHub**: `gh pr create --base <base> --head <branch> --title <title> --body-file .git/agentic-dev-kit/tmp/pr-body.md [--draft]`; `AB#<id>` in the body links the item through the Azure Boards app.
+
+Done when the PR URL is returned and the item is linked to it.
+
+## 10. Hand back
+
+Report the branch, commits, PR URL, each acceptance criterion with its evidence, and anything deferred or split off. Then offer the remaining ADO writes (state change, a comment with the PR link and evidence summary) and run only those the user approves. When reviewers comment, the `pr-review` skill works the threads from the author's side. In teach mode, close with a recap of the practices applied and the recall questions the user missed.
+
+Then run the postflight. Alongside it, confirm the remote state with a fresh read: the PR exists, targets the base, links the item, and lists any sign-off teams as reviewers. Done when the postflight passes and the remote state matches.

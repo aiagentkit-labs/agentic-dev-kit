@@ -5,7 +5,7 @@
       "type": "streamable-http",
       "url": "https://mcp.dev.azure.com/",
       "headers": {
-        "X-MCP-Toolsets": "wit,work"
+        "X-MCP-Toolsets": "wit,work,repos"
       }
     }
   }

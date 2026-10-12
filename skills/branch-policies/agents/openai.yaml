@@ -1,0 +1,3 @@
+interface:
+  display_name: "Branch Policies"
+  short_description: "Set team or solo branch policies on Azure Repos or GitHub"
