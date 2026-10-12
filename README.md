@@ -86,6 +86,21 @@ The skills check their own prerequisites: a **preflight** before each run (git v
 
 Install anything missing with [`scripts/install.sh`](scripts/install.sh) (macOS via Homebrew; Linux prints the commands) or [`scripts/install.ps1`](scripts/install.ps1) (Windows via winget). Both show what they'll run and ask first; sign-ins (`az login`, `gh auth login`) stay with you.
 
+## Guardrails
+
+The skills' instructions and the check scripts guide the agent; they don't stop it. Three layers do:
+
+1. **Read-only reviewer agents**: the PR, Security, and Privacy reviewers are given only read and search tools.
+2. **A PreToolUse hook** ([`com.github.copilot/hooks/hooks.json`](com.github.copilot/hooks/hooks.json) running [`scripts/guardrails.sh`](scripts/guardrails.sh), or [`guardrails.ps1`](scripts/guardrails.ps1) on Windows), checked by the client before every tool call while the plugin is enabled:
+   - **Denies**: `git push --force` / `-f` / `+refspec`, direct pushes to `main`, `master`, `develop`, `release/*`, `git reset --hard`, `git clean -f`, `git branch -D`, `git checkout .` / `git restore .`, `git stash drop|clear`, `--no-verify`, and bypassing branch policies.
+   - **Asks**: any other `git push` (including `--force-with-lease`), `gh pr` writes, `gh api` writes and GraphQL mutations, `az repos pr` / `az boards` writes, `az devops invoke` writes, every Azure DevOps MCP write tool, and recursive deletes outside `.git/agentic-dev-kit/`.
+   - Hooks are in preview in VS Code: enable `chat.useHooks` and trust the workspace. In Claude Code, register `scripts/guardrails.sh` as a `PreToolUse` hook in your settings.
+   - To change the rules, edit the script and run [`scripts/guardrails.test.sh`](scripts/guardrails.test.sh).
+3. **Your repository's own policies**, the only layer that holds when everything else fails. Recommended:
+   - **Azure Repos** branch policies on the default branch: require a PR with at least one reviewer, block authors approving their own changes, require linked work items, require comment resolution, require build validation, and add automatic reviewers for security- and privacy-sensitive paths.
+   - **GitHub**: a ruleset with the same rules, `CODEOWNERS`, and secret scanning with push protection.
+   - **Least privilege**: personal access tokens or Entra app scopes limited to Work Items and Code; set `X-MCP-Readonly: true` in `mcp.json` for anyone who only reads.
+
 ## Authentication
 
 The plugin contains no credentials. Each user signs in with their own account:

@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "bash ${PLUGIN_ROOT}/scripts/guardrails.sh",
+        "windows": "powershell -NoProfile -ExecutionPolicy Bypass -File ${PLUGIN_ROOT}\\scripts\\guardrails.ps1",
+        "timeout": 10
+      }
+    ]
+  }
+}
