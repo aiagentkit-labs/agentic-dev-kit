@@ -5,7 +5,7 @@ description: Review and set branch policies on Azure Repos or GitHub through an 
 
 Branch policies are shared infrastructure. Show every change as before and after, apply it only on the user's yes, and leave the user able to revert it. Changing policies needs admin rights: **Edit policies** on the Azure Repos repository, or admin on the GitHub repository.
 
-Run the [preflight and postflight](../../scripts/check.sh) as the other skills do (`check.sh pre|post branch-policies`), and use the interview mode from [ado-implement step 0](../ado-implement/SKILL.md#0-pick-the-interview-mode).
+Run the [preflight and postflight](../../scripts/check.sh) as the other skills do (`check.sh pre|post branch-policies`), and show each table. Use the interview mode from [ado-implement step 0](../ado-implement/SKILL.md#0-pick-the-interview-mode), with each gate a round in the format of [ado-implement's Rounds](../ado-implement/SKILL.md#rounds).
 
 ## Profiles
 

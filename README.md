@@ -45,7 +45,15 @@ reviewer   pick PR -> check out head -> PR Reviewer subagent -> verify findings
            -> choose what to post + vote -> post on your yes -> re-review later
 ```
 
-Each step ends at a gate where you decide; nothing is pushed or written to Azure DevOps without your yes. Best practices (descriptive work items, small PRs, branch and commit hygiene) are checked along the way: see [PRACTICES.md](skills/ado-implement/PRACTICES.md) and [TESTING.md](skills/ado-implement/TESTING.md).
+Each step ends at a gate where you decide; nothing is pushed or written to Azure DevOps without your yes.
+
+Start with just the item and the mode, and let the skill drive:
+
+```text
+/ado-implement https://dev.azure.com/<org>/<project>/_workitems/edit/<id> teach
+```
+
+Anything else you add (for example "one question at a time") overrides the skill's defaults for pace. The steps and gates still apply. Best practices (descriptive work items, small PRs, branch and commit hygiene) are checked along the way: see [PRACTICES.md](skills/ado-implement/PRACTICES.md) and [TESTING.md](skills/ado-implement/TESTING.md).
 
 ## Install
 
