@@ -41,7 +41,9 @@ Every gate is a round in this format, the `grilling` skill's, written out here s
 Reply per question, for example: `1 yes · 2 b · 3 no, because …`
 ```
 
-The 📘 line is **teach** mode only. Its source is about *that* decision: the docs for the technology or practice in question, not a general process page. Mark the recall answers at the start of the next round, and correct any misses in a line each.
+The 📘 line is **teach** mode only, and every teach-mode question carries all three parts: Why, Source, and Check. Its source is about *that* decision: the docs for the technology or practice in question, not a general process page. Mark the recall answers at the start of the next round, and correct any misses in a line each.
+
+Use this layout verbatim, emoji included: the user scans for ❓ and ➡️ and replies by number. When the user's own message sets a pace (for example "one question at a time"), say once in the first round that you're following it and how many open questions remain, so they can switch back to the full frontier.
 
 ## 0. Pick the interview mode
 
