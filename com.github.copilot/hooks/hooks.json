@@ -3,8 +3,9 @@
     "PreToolUse": [
       {
         "type": "command",
-        "command": "bash ${PLUGIN_ROOT}/scripts/guardrails.sh",
-        "windows": "powershell -NoProfile -ExecutionPolicy Bypass -File ${PLUGIN_ROOT}\\scripts\\guardrails.ps1",
+        "command": "bash -c 'for r in \"$PLUGIN_ROOT\" \"$COPILOT_PLUGIN_ROOT\" \"$CLAUDE_PLUGIN_ROOT\" \"$HOME\"/.vscode/agent-plugins/*/*/agentic-dev-kit \"$HOME\"/.vscode-insiders/agent-plugins/*/*/agentic-dev-kit \"$HOME\"/.copilot/installed-plugins/*/agentic-dev-kit \"$HOME\"/.copilot/installed-plugins/_direct/*agentic-dev-kit*; do [ -f \"$r/scripts/guardrails.sh\" ] && exec bash \"$r/scripts/guardrails.sh\"; done; echo \"agentic-dev-kit: scripts/guardrails.sh not found; guardrails are off\" >&2'",
+        "windows": "powershell -NoProfile -ExecutionPolicy Bypass -Command foreach ($r in @($env:PLUGIN_ROOT, $env:COPILOT_PLUGIN_ROOT, $env:CLAUDE_PLUGIN_ROOT) + @(Resolve-Path -ErrorAction Ignore (Join-Path $HOME .vscode\\agent-plugins\\*\\*\\agentic-dev-kit), (Join-Path $HOME .vscode-insiders\\agent-plugins\\*\\*\\agentic-dev-kit), (Join-Path $HOME .copilot\\installed-plugins\\*\\agentic-dev-kit), (Join-Path $HOME .copilot\\installed-plugins\\_direct\\*agentic-dev-kit*))) { if ($r -and (Test-Path (Join-Path $r scripts\\guardrails.ps1))) { . (Join-Path $r scripts\\guardrails.ps1); exit 0 } }; [Console]::Error.WriteLine('agentic-dev-kit: scripts\\guardrails.ps1 not found; guardrails are off')",
+        "powershell": "foreach ($r in @($env:PLUGIN_ROOT, $env:COPILOT_PLUGIN_ROOT, $env:CLAUDE_PLUGIN_ROOT) + @(Resolve-Path -ErrorAction Ignore (Join-Path $HOME .vscode\\agent-plugins\\*\\*\\agentic-dev-kit), (Join-Path $HOME .vscode-insiders\\agent-plugins\\*\\*\\agentic-dev-kit), (Join-Path $HOME .copilot\\installed-plugins\\*\\agentic-dev-kit), (Join-Path $HOME .copilot\\installed-plugins\\_direct\\*agentic-dev-kit*))) { if ($r -and (Test-Path (Join-Path $r scripts\\guardrails.ps1))) { . (Join-Path $r scripts\\guardrails.ps1); exit 0 } }; [Console]::Error.WriteLine('agentic-dev-kit: scripts\\guardrails.ps1 not found; guardrails are off')",
         "timeout": 10
       }
     ]

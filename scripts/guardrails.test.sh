@@ -14,6 +14,9 @@ run() {
   out="$(printf '%s' "$payload" | PATH="$GUARD_PATH" bash "$here/guardrails.sh")"
   got="$(printf '%s' "$out" | sed -nE 's/.*"permissionDecision":"([a-z]+)".*/\1/p')"
   [ -n "$got" ] || got=none
+  if [ "$got" != none ] && ! printf '%s' "$out" | grep -q '^{"permissionDecision":"'"$got"'".*"hookSpecificOutput":{.*"permissionDecision":"'"$got"'"'; then
+    got="$got-without-both-formats"
+  fi
   if [ "$got" = "$expected" ]; then pass=$((pass + 1)); else fail=$((fail + 1)); echo "FAIL want=$expected got=$got :: $tool :: $cmd"; fi
 }
 

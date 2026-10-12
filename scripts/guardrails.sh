@@ -16,8 +16,9 @@ field() {
 tool="$(field .tool_name tool_name)"
 cmd="$(field .tool_input.command command)"
 
+# Top level for the Copilot harness, hookSpecificOutput for VS Code's Local harness and Claude Code.
 decide() {
-  printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"%s","permissionDecisionReason":"agentic-dev-kit: %s"}}\n' "$1" "$2"
+  printf '{"permissionDecision":"%s","permissionDecisionReason":"agentic-dev-kit: %s","hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"%s","permissionDecisionReason":"agentic-dev-kit: %s"}}\n' "$1" "$2" "$1" "$2"
   exit 0
 }
 has() { printf '%s' "$cmd" | grep -Eq -- "$1"; }
