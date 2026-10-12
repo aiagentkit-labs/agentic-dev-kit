@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Preflight and postflight checks for agentic-dev-kit skills; run from the user's repo root.
-# Usage: check.sh pre|post <ado-implement|pr-review>
+# Usage: check.sh pre|post <ado-implement|pr-review|branch-policies>
 set -u
 
 phase="${1:-}"
 skill="${2:-}"
-case "$phase" in pre|post) ;; *) echo "usage: check.sh pre|post <ado-implement|pr-review>" >&2; exit 2 ;; esac
-case "$skill" in ado-implement|pr-review) ;; *) echo "unknown skill: $skill" >&2; exit 2 ;; esac
+case "$phase" in pre|post) ;; *) echo "usage: check.sh pre|post <ado-implement|pr-review|branch-policies>" >&2; exit 2 ;; esac
+case "$skill" in ado-implement|pr-review|branch-policies) ;; *) echo "unknown skill: $skill" >&2; exit 2 ;; esac
 
 fails=0
 report() {
@@ -115,7 +115,7 @@ post() {
   fi
 
   case "$skill" in
-    pr-review)
+    pr-review | branch-policies)
       if [ "$branch" = "$start_branch" ]; then
         report PASS "back on $start_branch"
       else

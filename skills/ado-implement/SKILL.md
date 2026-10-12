@@ -116,6 +116,8 @@ Write the body with the `pr` skill (call the Skill tool with "pr"). Put the scre
 
 **Gate**: title (the item title plus its ID), target branch (the base from step 5), draft or published, reviewers (including each sign-off team from step 8's `escalate` findings, as required reviewers), merge strategy (squash recommended where allowed), auto-complete when policies pass, and the full body. List open escalations in the body's Merge Danger section. Recommend a draft until the pipeline is green.
 
+**Solo**: when nobody else can approve, check the branch's approval policy. If it would leave the PR impossible to complete, say so and offer the `branch-policies` skill's solo profile rather than any bypass. In solo, post the merged step 8 findings on the PR as its review record. Have the user acknowledge each `escalate` finding in a PR comment. Then, on the user's yes, approve and set auto-complete: `az repos pr set-vote --vote approve` and `az repos pr update --auto-complete true`, or `gh pr merge --auto --squash`.
+
 On the user's yes, push with `git push -u origin <branch>`, then create the PR:
 
 - **Azure Repos**: MCP `repo_pull_request_write` action `create`, then `wit_work_item_link_write` action `link_to_pull_request`. CLI: `az repos pr create --source-branch <branch> --target-branch <base> --title <title> --description <body> --work-items <id> [--draft true] [--auto-complete true --squash true --delete-source-branch true]`.

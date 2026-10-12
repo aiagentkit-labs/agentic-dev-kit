@@ -7,6 +7,7 @@ An [Agent Plugin](https://agent-plugins.org/) that bundles skills for planning a
 | `ado-implement` | Takes an Azure DevOps work item to a pull request, interviewing you at every gate | Automatic when you mention ADO / work items, or `/ado-implement` |
 | `pr` | Writes a PR body: summary visual, before/after evidence, merge danger | Automatic when writing a PR body, or `/pr` |
 | `pr-review` | Interview-driven PR review, from either side: address the comments on your PR until every thread is settled, or review someone else's PR and post comments and a vote | Automatic when you mention PR comments or reviewing a PR, or `/pr-review` |
+| `branch-policies` | Reads and sets branch policies on Azure Repos or GitHub with a **team** or **solo** profile; solo relaxes only who approves, for developers with no one to approve their PRs | Automatic when you mention branch policies or working alone, or `/branch-policies` |
 | `grilling` | Stress-tests a plan or decision, one round of questions at a time | Automatic on "grill" phrases, or `/grilling` |
 | `grill-me` | A relentless interview to sharpen a plan or design | `/grill-me` |
 | `teach` | Teaches a new concept inside your workspace | `/teach` |
@@ -100,6 +101,7 @@ The skills' instructions and the check scripts guide the agent; they don't stop 
    - **Azure Repos** branch policies on the default branch: require a PR with at least one reviewer, block authors approving their own changes, require linked work items, require comment resolution, require build validation, and add automatic reviewers for security- and privacy-sensitive paths.
    - **GitHub**: a ruleset with the same rules, `CODEOWNERS`, and secret scanning with push protection.
    - **Least privilege**: personal access tokens or Entra app scopes limited to Work Items and Code; set `X-MCP-Readonly: true` in `mcp.json` for anyone who only reads.
+   - **Working solo**: keep every rule above except the approver: on Azure Repos, 1 approver with the author's own vote counting; on GitHub, 0 required approvals. The `branch-policies` skill applies this, and `ado-implement` then posts the AI reviewers' findings on each PR as its review record.
 
 ## Authentication
 

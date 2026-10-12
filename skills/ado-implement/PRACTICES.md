@@ -49,3 +49,7 @@ Record each split as a child task on the work item, so the backlog reflects the 
 - Open as a draft until the build is green; publish when ready for review.
 - Link the work item, so branch policies and traceability work. Source: [Azure Repos: create a PR](https://learn.microsoft.com/azure/devops/repos/git/pull-requests).
 - Squash merge keeps the base branch one commit per item, when the repo allows it.
+
+## Working solo
+
+With no second person to approve, still open a PR for every change: it runs the pipeline, records the review, and links the work item. Relax only the approval rule (the `branch-policies` skill's solo profile), never the build or the PR requirement. Let the PR, Security, and Privacy reviewers stand in as the second reader. Before approving your own PR, re-read its diff after a break.

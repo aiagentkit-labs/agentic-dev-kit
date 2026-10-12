@@ -54,6 +54,7 @@ if (Has "${B}gh\s+api") {
   if (Has 'mutation') { Decide ask 'this runs a GitHub GraphQL mutation.' }
   if (-not (Has 'graphql') -and (Has '\s(-f|-F|--field|--raw-field|--input)\s')) { Decide ask 'this writes through the GitHub API.' }
 }
+if (Has "${B}az\s+repos\s+policy\s+[a-z-]+\s+(create|update|delete)") { Decide ask 'this changes branch policies.' }
 if (Has "${B}az\s+repos\s+pr\s+(create|update|set-vote|reviewer\s+(add|remove)|work-item\s+(add|remove))") { Decide ask 'this writes to an Azure Repos pull request.' }
 if (Has "${B}az\s+boards\s+work-item\s+(create|update|delete|relation\s+(add|remove))") { Decide ask 'this writes to Azure Boards.' }
 if (HasI "${B}az\s+devops\s+invoke[^;&|]*--http-method[\s=]+(POST|PATCH|PUT|DELETE)") { Decide ask 'this writes through the Azure DevOps REST API.' }

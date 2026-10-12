@@ -1,10 +1,10 @@
 <#
 Preflight and postflight checks for agentic-dev-kit skills; run from the user's repo root.
-Usage: check.ps1 -Phase pre|post -Skill ado-implement|pr-review
+Usage: check.ps1 -Phase pre|post -Skill ado-implement|pr-review|branch-policies
 #>
 param(
   [Parameter(Mandatory)][ValidateSet('pre', 'post')][string]$Phase,
-  [Parameter(Mandatory)][ValidateSet('ado-implement', 'pr-review')][string]$Skill
+  [Parameter(Mandatory)][ValidateSet('ado-implement', 'pr-review', 'branch-policies')][string]$Skill
 )
 
 $script:Fails = 0
@@ -94,7 +94,7 @@ function Invoke-Post {
   else { Report PASS 'stash restored' }
 
   switch ($Skill) {
-    'pr-review' {
+    { $_ -in 'pr-review', 'branch-policies' } {
       if ($branch -eq $state.start_branch) { Report PASS "back on $branch" }
       else { Report FAIL 'branch' "on $branch; the user started on $($state.start_branch)" }
     }

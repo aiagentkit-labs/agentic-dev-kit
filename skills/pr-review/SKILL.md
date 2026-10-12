@@ -8,6 +8,8 @@ A pull request review has two **personas**. Pick from the user's words; when unc
 - **Author**: comments landed on the user's PR. Iterate until every thread is settled: [ADDRESS.md](ADDRESS.md).
 - **Reviewer**: someone else's PR. Pull it, review it, and post comments: [REVIEW.md](REVIEW.md).
 
+A solo developer can run the reviewer persona on their own PR to leave a review record. Azure Repos counts their vote only under the solo profile from `branch-policies`. GitHub never accepts an author's approval, so post the review as **Comment**.
+
 ## Shared rules
 
 - **Interview mode**: grill or teach, exactly as in [ado-implement step 0](../ado-implement/SKILL.md#0-pick-the-interview-mode). Every step that ends in a **gate** is one interview round; then wait.

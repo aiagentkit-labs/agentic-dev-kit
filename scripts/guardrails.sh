@@ -70,6 +70,8 @@ if has "${B}gh[[:space:]]+api"; then
   has "mutation" && decide ask "this runs a GitHub GraphQL mutation."
   has "graphql" || { has "[[:space:]](-f|-F|--field|--raw-field|--input)[[:space:]]" && decide ask "this writes through the GitHub API."; }
 fi
+has "${B}az[[:space:]]+repos[[:space:]]+policy[[:space:]]+[a-z-]+[[:space:]]+(create|update|delete)" &&
+  decide ask "this changes branch policies."
 has "${B}az[[:space:]]+repos[[:space:]]+pr[[:space:]]+(create|update|set-vote|reviewer[[:space:]]+(add|remove)|work-item[[:space:]]+(add|remove))" &&
   decide ask "this writes to an Azure Repos pull request."
 has "${B}az[[:space:]]+boards[[:space:]]+work-item[[:space:]]+(create|update|delete|relation[[:space:]]+(add|remove))" &&
