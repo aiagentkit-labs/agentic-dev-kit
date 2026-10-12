@@ -7,12 +7,17 @@ try { $payload = $raw | ConvertFrom-Json } catch { exit 0 }
 $tool = [string]$payload.tool_name
 $cmd = [string]$payload.tool_input.command
 
+# Top level for the Copilot harness, hookSpecificOutput for VS Code's Local harness and Claude Code.
 function Decide([string]$Decision, [string]$Reason) {
-  @{ hookSpecificOutput = @{
+  @{
+    permissionDecision       = $Decision
+    permissionDecisionReason = "agentic-dev-kit: $Reason"
+    hookSpecificOutput       = @{
       hookEventName            = 'PreToolUse'
       permissionDecision       = $Decision
       permissionDecisionReason = "agentic-dev-kit: $Reason"
-    } } | ConvertTo-Json -Compress -Depth 3
+    }
+  } | ConvertTo-Json -Compress -Depth 3
   exit 0
 }
 function Has([string]$Pattern) { $cmd -cmatch $Pattern }
