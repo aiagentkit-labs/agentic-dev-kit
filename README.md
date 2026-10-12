@@ -18,6 +18,7 @@ An [Agent Plugin](https://agent-plugins.org/) that bundles skills for planning a
 | `PR Reviewer` | Read-only review of a branch or PR against its spec, test layers, and repo standards; returns a findings table | Subagent of `ado-implement` and `pr-review` |
 | `Security Reviewer` | Read-only review against [security controls](review-controls/security.md) plus your organization's | Subagent, in parallel with `PR Reviewer` |
 | `Privacy Reviewer` | Read-only data-flow review against [privacy controls](review-controls/privacy.md) plus your organization's | Subagent, in parallel with `PR Reviewer` |
+| `Lint Runner` | Runs the repo's linters, formatters, and type checks in check mode and returns findings grouped as auto-fix, code change, or rule question, keeping long lint output out of your chat | Subagent of `lint` |
 
 It also connects the [hosted Azure DevOps MCP server](https://learn.microsoft.com/azure/devops/mcp-server/remote-mcp-server), limited to work-item, iteration, and repository tools.
 
