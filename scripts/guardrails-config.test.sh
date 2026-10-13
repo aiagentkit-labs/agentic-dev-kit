@@ -84,4 +84,12 @@ else
   exit 1
 fi
 
+registry_out="$(python3 "$here/policy_registry.py" --list 2>/dev/null || true)"
+if printf '%s' "$registry_out" | grep -Eq 'security.*privacy.*testing.*practices.*lint'; then
+  echo 'PASS policy_registry_list -> topics'
+else
+  echo "FAIL policy_registry_list expected topic list got: $registry_out"
+  exit 1
+fi
+
 echo 'guardrails-config tests passed'
