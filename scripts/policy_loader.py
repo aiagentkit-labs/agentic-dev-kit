@@ -116,6 +116,81 @@ def fetch_shared_content(spec):
     return open(candidate, encoding="utf-8").read()
 
 
+def validate_override_file(path):
+    if not path or not os.path.exists(path):
+        raise ValueError(f"override file not found: {path}")
+
+    with open(path, encoding="utf-8") as handle:
+        text = handle.read()
+
+    if not text.strip():
+        raise ValueError("override file is empty")
+
+    frontmatter = {}
+    body = text
+    if text.startswith("---\n"):
+        match = re.match(r"^---\n(.*?)\n---\n", text, re.S)
+        if not match:
+            raise ValueError("invalid frontmatter delimiter")
+        fm_text = match.group(1)
+        body = text[match.end():]
+        for line in fm_text.splitlines():
+            item = line.strip()
+            if not item or item.startswith("#"):
+                continue
+            if ":" not in item:
+                raise ValueError(f"invalid frontmatter line: {item!r}")
+            key, value = [part.strip() for part in item.split(":", 1)]
+            if key not in {"extends", "mode"}:
+                raise ValueError(f"unsupported frontmatter key: {key!r}")
+            frontmatter[key] = value
+
+    mode = frontmatter.get("mode", "merge")
+    if mode not in {"merge", "replace"}:
+        raise ValueError(f"unsupported mode {mode!r}; use 'merge' or 'replace'")
+
+    if "extends" in frontmatter:
+        extends = frontmatter["extends"]
+        if not re.match(r"^(https://|ssh://|git@)[^\s]+#[^\s:]+:[^\s]+$", extends):
+            raise ValueError(
+                "invalid extends format; use <git URL>#<ref>:<path> with https, ssh, or git@ URLs"
+            )
+
+    controls_match = re.search(r"(?ms)^##\s+Controls\s*\n(.*?)(?=\n##\s+|\Z)", body)
+    if not controls_match:
+        raise ValueError("missing ## Controls section")
+
+    controls_block = controls_match.group(1)
+    rows = []
+    for line in controls_block.splitlines():
+        item = line.strip()
+        if not item or item.startswith("| ---") or item.startswith("| ID |") or "Control" in item and "Severity" in item:
+            continue
+        if not item.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in item.strip().strip("|").split("|")]
+        if len(cells) < 3:
+            raise ValueError(f"malformed controls row: {line!r}")
+        row_id, control, severity = cells[:3]
+        rows.append((row_id, control, severity))
+
+    if not rows:
+        raise ValueError("no control rows found in ## Controls")
+
+    valid_severities = {"blocker", "should-fix", "nit", "escalate", "setup", "off"}
+    for row_id, control, severity in rows:
+        if not re.fullmatch(r"[A-Z0-9-]+", row_id):
+            raise ValueError(f"invalid control ID {row_id!r}")
+        if severity not in valid_severities:
+            raise ValueError(f"invalid severity {severity!r} for {row_id!r}")
+        if severity == "off" and not control.lower().startswith("off:"):
+            raise ValueError(
+                f"control {row_id!r} is marked 'off' but the description is missing the required 'off:' reason"
+            )
+
+    return True
+
+
 def merge(base, extra, mode):
     merged = {"deny": list(base.get("deny", [])), "ask": list(base.get("ask", []))}
     if mode == "replace":
@@ -150,10 +225,16 @@ def main():
     parser.add_argument("--repo", dest="repo_path", default="")
     parser.add_argument("--command", dest="command", default="")
     parser.add_argument("--fetch-shared", dest="fetch_shared_spec", default="")
+    parser.add_argument("--validate", dest="validate_path", default="")
     args = parser.parse_args()
 
     if args.fetch_shared_spec:
         print(fetch_shared_content(args.fetch_shared_spec), end="")
+        return 0
+
+    if args.validate_path:
+        validate_override_file(args.validate_path)
+        print(f"OK: valid override file: {args.validate_path}")
         return 0
 
     result = effective_rules(args.default_path, args.repo_path, args.command)
