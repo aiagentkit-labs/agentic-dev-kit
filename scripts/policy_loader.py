@@ -164,7 +164,13 @@ def validate_override_file(path):
     rows = []
     for line in controls_block.splitlines():
         item = line.strip()
-        if not item or item.startswith("| ---") or item.startswith("| ID |") or "Control" in item and "Severity" in item:
+        if (
+            not item
+            or item.startswith("|---")
+            or item.startswith("| ---")
+            or item.startswith("| ID |")
+            or ("Control" in item and "Severity" in item)
+        ):
             continue
         if not item.startswith("|"):
             continue
@@ -233,7 +239,11 @@ def main():
         return 0
 
     if args.validate_path:
-        validate_override_file(args.validate_path)
+        try:
+            validate_override_file(args.validate_path)
+        except ValueError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 1
         print(f"OK: valid override file: {args.validate_path}")
         return 0
 

@@ -100,4 +100,30 @@ else
   exit 1
 fi
 
+cat >"$work/valid-override.md" <<'EOF'
+---
+extends: https://github.com/contoso/eng-standards.git#main:testing-controls/testing.md
+mode: merge
+---
+
+## Controls
+
+| ID | Control | Severity |
+|---|---|---|
+| A11Y-02 | Scans check WCAG 2.2 level AAA | blocker |
+| UI-05 | off: repo tests UI with Cypress (ADR-012) | off |
+
+## Instructions
+
+Use the page objects in `tests/pages/` for every UI test.
+EOF
+
+validate_out="$(python3 "$here/policy_loader.py" --validate "$work/valid-override.md" 2>/dev/null || true)"
+if printf '%s' "$validate_out" | grep -Eq 'OK: valid override file'; then
+  echo 'PASS policy_loader_validate_override -> ok'
+else
+  echo "FAIL policy_loader_validate_override expected valid override got: $validate_out"
+  exit 1
+fi
+
 echo 'guardrails-config tests passed'
