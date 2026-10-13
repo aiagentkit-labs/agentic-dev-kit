@@ -92,4 +92,12 @@ else
   exit 1
 fi
 
+shared_fetch_out="$(python3 "$here/policy_loader.py" --fetch-shared "$shared_repo#main:guardrails.yml" 2>/dev/null || true)"
+if printf '%s' "$shared_fetch_out" | grep -Eq 'gh pr review'; then
+  echo 'PASS policy_loader_fetch_shared -> content'
+else
+  echo "FAIL policy_loader_fetch_shared expected shared content got: $shared_fetch_out"
+  exit 1
+fi
+
 echo 'guardrails-config tests passed'
