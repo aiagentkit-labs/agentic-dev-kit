@@ -59,7 +59,7 @@ Anything else you add (for example "one question at a time") overrides the skill
 
 ## Install
 
-**VS Code (GitHub Copilot)**: run **Chat: Install Plugin From Source** and enter `https://github.com/puttagunta/agentic-dev-kit`.
+**VS Code (GitHub Copilot)**: run **Chat: Install Plugin From Source** and enter `https://github.com/aiagentkit-labs/agentic-dev-kit`.
 
 **Recommend it to everyone working in a repo**: add `.github/copilot/settings.json` to that repo:
 
@@ -67,7 +67,7 @@ Anything else you add (for example "one question at a time") overrides the skill
 {
   "extraKnownMarketplaces": {
     "agentic-dev-kit": {
-      "source": { "source": "github", "repo": "puttagunta/agentic-dev-kit" }
+      "source": { "source": "github", "repo": "aiagentkit-labs/agentic-dev-kit" }
     }
   },
   "enabledPlugins": {
