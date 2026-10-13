@@ -51,18 +51,33 @@ def parse(path):
     if not path or not os.path.exists(path):
         return data
     current = None
+    invalid = False
     for raw in open(path, encoding="utf-8"):
         line = raw.rstrip()
         stripped = line.strip()
         if not stripped or stripped.startswith("#") or stripped in {"---", "..."}:
             continue
         if stripped.startswith("extends:"):
-            data["extends"] = stripped.split(":", 1)[1].strip().strip("\"'")
+            spec = stripped.split(":", 1)[1].strip().strip("\"'")
+            if not spec or "#" not in spec:
+                invalid = True
+            else:
+                full_url, rest = spec.split("#", 1)
+                if not full_url or ":" not in rest:
+                    invalid = True
+                else:
+                    ref, file_path = rest.split(":", 1)
+                    if not ref or not file_path:
+                        invalid = True
+                    else:
+                        data["extends"] = spec
             continue
         if stripped.startswith("mode:"):
             mode = stripped.split(":", 1)[1].strip().strip("\"'")
             if mode in {"merge", "replace"}:
                 data["mode"] = mode
+            else:
+                invalid = True
             continue
         if stripped in {"deny:", "ask:", "allow:"}:
             current = stripped[:-1]
@@ -71,6 +86,15 @@ def parse(path):
             item = stripped[2:].strip().strip("\"'")
             if item:
                 data.setdefault(current, []).append(item)
+            continue
+        if stripped.startswith("-") and current:
+            invalid = True
+            continue
+        if stripped and not stripped.startswith("#"):
+            if current is None:
+                invalid = True
+    if invalid:
+        return {"mode": "merge", "extends": None, "deny": [], "ask": []}
     return data
 
 
