@@ -1,6 +1,6 @@
 # Security controls
 
-The baseline the **Security Reviewer** applies to every change. An organization extends it per repo with `.github/review-controls/security.md` in the same format: its controls add to these, and a control with a baseline ID replaces that baseline control.
+The baseline the **Security Reviewer** applies to every change. A repo tailors it with `.github/review-controls/security.md`, or shares an organization's version through `extends`; see [CONTROLS.md](../CONTROLS.md).
 
 Severities: `blocker`, `should-fix`, `nit`, and `escalate` (needs sign-off from the team named under Escalation before merge).
 

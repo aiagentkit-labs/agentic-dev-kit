@@ -1,6 +1,6 @@
 # Baselines
 
-Reference for [`lint`](SKILL.md) step 2. Add only the missing pieces, merge into files that already exist, and install with the repo's package manager.
+How to set up the default baselines (`LINT-10` to `LINT-12` in the [lint controls](../../lint-controls/lint.md)) for [`lint`](SKILL.md) step 2. Where the repo overrides one of them, set up what the override names instead. Add only the missing pieces, merge into files that already exist, and install with the repo's package manager.
 
 ## TypeScript / JavaScript
 
