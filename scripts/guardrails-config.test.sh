@@ -22,7 +22,7 @@ deny:
   - git clean -fd
 EOF
 
-shared_repo="$(mktemp -d)"
+shared_repo="$work/shared"
 git init --initial-branch=main "$shared_repo" >/dev/null 2>&1
 cat >"$shared_repo/guardrails.yml" <<'EOF'
 mode: merge
@@ -36,8 +36,12 @@ git -C "$shared_repo" config user.email 'test@example.com'
 git -C "$shared_repo" add guardrails.yml
 git -C "$shared_repo" commit -m 'shared guardrails' >/dev/null
 
+# Reach the local repo through an https URL; extends only accepts https and ssh.
+export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0="url.file://$shared_repo.insteadOf" GIT_CONFIG_VALUE_0="https://example.invalid/shared.git"
+shared_url="https://example.invalid/shared.git"
+
 cat >"$work/repo-extends.yaml" <<EOF
-extends: $shared_repo#main:guardrails.yml
+extends: $shared_url#main:guardrails.yml
 mode: merge
 ask:
   - gh pr create
@@ -84,6 +88,20 @@ else
   exit 1
 fi
 
+cat >"$work/repo-local-extends.yaml" <<EOF
+extends: $shared_repo#main:guardrails.yml
+ask:
+  - gh pr create
+EOF
+
+local_out="$(python3 "$here/policy_loader.py" --default "$work/default.yaml" --repo "$work/repo-local-extends.yaml" --command 'gh pr review --repo org/project 5' 2>/dev/null || true)"
+if [ -z "$local_out" ]; then
+  echo 'PASS policy_loader_local_extends_ignored -> none'
+else
+  echo "FAIL policy_loader_local_extends_ignored expected no match got: $local_out"
+  exit 1
+fi
+
 registry_out="$(python3 "$here/policy_registry.py" --list 2>/dev/null || true)"
 if printf '%s' "$registry_out" | grep -Eq 'security.*privacy.*testing.*practices.*lint'; then
   echo 'PASS policy_registry_list -> topics'
@@ -92,7 +110,7 @@ else
   exit 1
 fi
 
-shared_fetch_out="$(python3 "$here/policy_loader.py" --fetch-shared "$shared_repo#main:guardrails.yml" 2>/dev/null || true)"
+shared_fetch_out="$(python3 "$here/policy_loader.py" --fetch-shared "$shared_url#main:guardrails.yml" 2>/dev/null || true)"
 if printf '%s' "$shared_fetch_out" | grep -Eq 'gh pr review'; then
   echo 'PASS policy_loader_fetch_shared -> content'
 else

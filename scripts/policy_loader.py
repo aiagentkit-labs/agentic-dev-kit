@@ -14,106 +14,98 @@ import subprocess
 import sys
 import tempfile
 
+# <git URL>#<ref>:<path>, https and ssh only (CONTROLS.md), matching controls.sh and controls.ps1.
+EXTENDS_RE = re.compile(r"^(?P<url>(?:https://|ssh://|git@)[^\s#]+)#(?P<ref>[^\s:]+):(?P<path>\S+)$")
+
+
+class FetchError(Exception):
+    pass
+
+
+def parse_extends(spec):
+    match = EXTENDS_RE.match(spec or "")
+    if not match:
+        return None
+    return match.group("url"), match.group("ref"), match.group("path")
+
 
 def parse(path):
-    data = {"mode": "merge", "extends": None, "deny": [], "ask": []}
     if not path or not os.path.exists(path):
-        return data
+        return parse_text("")
+    with open(path, encoding="utf-8") as handle:
+        return parse_text(handle.read())
 
+
+def parse_text(text):
+    data = {"mode": "merge", "extends": None, "deny": [], "ask": []}
     current = None
     invalid = False
-    with open(path, encoding="utf-8") as handle:
-        for raw in handle:
-            line = raw.rstrip()
-            stripped = line.strip()
-            if not stripped or stripped.startswith("#") or stripped in {"---", "..."}:
-                continue
-            if stripped.startswith("extends:"):
-                spec = stripped.split(":", 1)[1].strip().strip("\"'")
-                if not spec or "#" not in spec:
-                    invalid = True
-                else:
-                    full_url, rest = spec.split("#", 1)
-                    if not full_url or ":" not in rest:
-                        invalid = True
-                    else:
-                        ref, file_path = rest.split(":", 1)
-                        if not ref or not file_path:
-                            invalid = True
-                        else:
-                            data["extends"] = spec
-                continue
-            if stripped.startswith("mode:"):
-                mode = stripped.split(":", 1)[1].strip().strip("\"'")
-                if mode in {"merge", "replace"}:
-                    data["mode"] = mode
-                else:
-                    invalid = True
-                continue
-            if stripped in {"deny:", "ask:", "allow:"}:
-                current = stripped[:-1]
-                continue
-            if stripped.startswith("- ") and current:
-                item = stripped[2:].strip().strip("\"'")
-                if item:
-                    data.setdefault(current, []).append(item)
-                continue
-            if stripped.startswith("-") and current:
+    for raw in text.splitlines():
+        line = raw.rstrip()
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or stripped in {"---", "..."}:
+            continue
+        if stripped.startswith("extends:"):
+            spec = stripped.split(":", 1)[1].strip().strip("\"'")
+            if parse_extends(spec):
+                data["extends"] = spec
+            else:
                 invalid = True
-                continue
-            if stripped and current is None and not stripped.startswith("#"):
+            continue
+        if stripped.startswith("mode:"):
+            mode = stripped.split(":", 1)[1].strip().strip("\"'")
+            if mode in {"merge", "replace"}:
+                data["mode"] = mode
+            else:
                 invalid = True
+            continue
+        if stripped in {"deny:", "ask:", "allow:"}:
+            current = stripped[:-1]
+            continue
+        if stripped.startswith("- ") and current:
+            item = stripped[2:].strip().strip("\"'")
+            if item:
+                data.setdefault(current, []).append(item)
+            continue
+        if stripped.startswith("-") and current:
+            invalid = True
+            continue
+        if stripped and current is None:
+            invalid = True
 
     if invalid:
         return {"mode": "merge", "extends": None, "deny": [], "ask": []}
     return data
 
 
-def fetch_shared(spec):
-    if not spec or "#" not in spec:
-        return None
-    full_url, rest = spec.split("#", 1)
-    if ":" not in rest:
-        return None
-    ref, path = rest.split(":", 1)
-    if not full_url or not ref or not path:
-        return None
-
-    tmp = tempfile.mkdtemp(prefix="policy-loader-")
-    clone = subprocess.run(
-        [
-            "git",
-            "clone",
-            "--quiet",
-            "--depth",
-            "1",
-            "--branch",
-            ref,
-            full_url,
-            os.path.join(tmp, "src"),
-        ],
-        env={
-            **os.environ,
-            "GIT_TERMINAL_PROMPT": "0",
-            "GIT_SSH_COMMAND": os.environ.get("GIT_SSH_COMMAND", "ssh -o BatchMode=yes"),
-        },
-        capture_output=True,
-        text=True,
-    )
-    if clone.returncode != 0:
-        return None
-
-    candidate = os.path.join(tmp, "src", path)
-    if not os.path.exists(candidate):
-        return None
-    return candidate
-
-
 def fetch_shared_content(spec):
-    candidate = fetch_shared(spec)
-    if not candidate or not os.path.exists(candidate):
-        return ""
-    return open(candidate, encoding="utf-8").read()
+    parts = parse_extends(spec)
+    if not parts:
+        raise FetchError("write extends as <git URL>#<ref>:<path>, with an https or ssh URL")
+    url, ref, path = parts
+    env = {
+        **os.environ,
+        # Fail instead of prompting: the agent's terminal can't answer a credential prompt.
+        "GIT_TERMINAL_PROMPT": "0",
+        "GIT_SSH_COMMAND": os.environ.get("GIT_SSH_COMMAND", "ssh -o BatchMode=yes"),
+    }
+    with tempfile.TemporaryDirectory(prefix="policy-loader-") as tmp:
+        src = os.path.join(tmp, "src")
+        clone = subprocess.run(
+            ["git", "clone", "--quiet", "--depth", "1", "--branch", ref,
+             "--filter=blob:none", "--no-checkout", "--", url, src],
+            env=env, capture_output=True, text=True,
+        )
+        if clone.returncode != 0:
+            first = (clone.stderr.strip().splitlines() or ["git clone failed"])[0]
+            raise FetchError(first)
+        show = subprocess.run(
+            ["git", "-C", src, "show", f"HEAD:{path}"],
+            env=env, capture_output=True, text=True,
+        )
+        if show.returncode != 0:
+            raise FetchError(f"{path} not found at {ref}")
+        return show.stdout
 
 
 def validate_override_file(path):
@@ -150,8 +142,7 @@ def validate_override_file(path):
         raise ValueError(f"unsupported mode {mode!r}; use 'merge' or 'replace'")
 
     if "extends" in frontmatter:
-        extends = frontmatter["extends"]
-        if not re.match(r"^(https://|ssh://|git@)[^\s]+#[^\s:]+:[^\s]+$", extends):
+        if not parse_extends(frontmatter["extends"]):
             raise ValueError(
                 "invalid extends format; use <git URL>#<ref>:<path> with https, ssh, or git@ URLs"
             )
@@ -212,10 +203,13 @@ def effective_rules(default_path, repo_path, cmd):
     config = parse(default_path)
     if repo_path and os.path.exists(repo_path):
         repo_cfg = parse(repo_path)
-        shared_path = fetch_shared(repo_cfg.get("extends"))
-        if shared_path:
-            shared_cfg = parse(shared_path)
-            config = merge(config, shared_cfg, "merge")
+        if repo_cfg.get("extends"):
+            try:
+                shared_cfg = parse_text(fetch_shared_content(repo_cfg["extends"]))
+            except FetchError:
+                shared_cfg = None
+            if shared_cfg:
+                config = merge(config, shared_cfg, "merge")
         config = merge(config, repo_cfg, repo_cfg.get("mode", "merge"))
 
     for key in ("deny", "ask"):
@@ -235,7 +229,11 @@ def main():
     args = parser.parse_args()
 
     if args.fetch_shared_spec:
-        print(fetch_shared_content(args.fetch_shared_spec), end="")
+        try:
+            print(fetch_shared_content(args.fetch_shared_spec), end="")
+        except FetchError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 1
         return 0
 
     if args.validate_path:
