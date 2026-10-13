@@ -10,6 +10,10 @@ The defaults the kit applies to tests: in the test plan at `ado-implement` step 
 | TST-02 | Logic, domain rules, and API handlers have unit tests through public interfaces, with expected values taken from the work item | blocker |
 | TST-03 | A criterion about an API contract has an integration test at the API seam | should-fix |
 | TST-04 | A bug fix has a regression test that fails on the repro steps before the fix, at the lowest layer that reproduces it | blocker |
+| TST-05 | Unit tests are deterministic: no real clock, randomness, network, or state shared between tests | should-fix |
+| TST-06 | Test doubles replace only boundaries the code doesn't own: network, clock, file system, external services | should-fix |
+| TST-07 | Every new test has been seen failing, for the reason it exists | should-fix |
+| TST-08 | A test's name states the behaviour it proves | nit |
 | A11Y-01 | Every changed view has an automated accessibility scan, scoped to the changed region | blocker |
 | A11Y-02 | Scans check WCAG 2.2 level AA: axe tags `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa` | blocker |
 | A11Y-03 | Every new control is reachable with Tab and activates with Enter or Space, overlays close with Escape, and focus lands where expected | blocker |

@@ -41,7 +41,7 @@ Recommend fix unless the evidence says otherwise. Facts in the code are yours to
 
 ## 4. Fix
 
-Work each accepted fix test-first, meeting the testing controls ([TESTING.md](../ado-implement/TESTING.md) shows how), and keep the build and tests green. For .NET and TypeScript/JavaScript, run the `lint` skill on the touched files before each commit. Commit per thread or per group of related threads, following the commit controls (`CM-*`).
+Work each accepted fix test-first, meeting the testing controls ([TESTING.md](../ado-implement/TESTING.md) shows how, and the `unit-test` skill runs the unit layer), and keep the build and tests green. For .NET and TypeScript/JavaScript, run the `lint` skill on the touched files before each commit. Commit per thread or per group of related threads, following the commit controls (`CM-*`).
 
 Add the round's fixes as new commits on top. If the user prefers, squash this round's local commits into one first. Leave alone the commits reviewers have already seen, so they can review only what changed.
 

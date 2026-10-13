@@ -120,7 +120,7 @@ Detect the project's stack and existing test tooling.
 
 **Gate**: the test plan: for each checklist entry, the layer(s), the seam, and the test name, meeting every testing control that applies. Any new framework or package (Playwright, axe) is listed for the user to approve.
 
-Then work **red → green** in vertical slices, one checklist entry at a time: a failing test, the least code that passes it, rerun. Follow [TESTING.md](TESTING.md) for each layer. Keep the build, linter, and tests green for everything you touched, using the commands the repo defines (package scripts, solution files, Makefile, CI workflows). For .NET and TypeScript/JavaScript, run the `lint` skill (call the Skill tool with "lint") on the touched files before the commit gate.
+Then work **red → green** in vertical slices, one checklist entry at a time: a failing test, the least code that passes it, rerun. Follow [TESTING.md](TESTING.md) for each layer, and run the `unit-test` skill (call the Skill tool with "unit-test") for the unit layer, with this step's checklist as its cases. Keep the build, linter, and tests green for everything you touched, using the commands the repo defines (package scripts, solution files, Makefile, CI workflows). For .NET and TypeScript/JavaScript, run the `lint` skill (call the Skill tool with "lint") on the touched files before the commit gate.
 
 Done when every checklist entry is ticked with its evidence: the test name and a passing run.
 

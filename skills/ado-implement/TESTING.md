@@ -13,11 +13,12 @@ Use the repo's existing runners and helpers first. Find them in the environment:
 | Bug | A regression test that goes **red** on the repro steps before the fix |
 | Config, docs, build only | None; state why in the PR's Evidence |
 
-## Unit (TST-02)
+## Unit (TST-02, TST-05 to TST-08)
+
+The `unit-test` skill runs this layer: it finds the framework, agrees the seams and cases with the user, and sees each test fail before it passes.
 
 - A test reads like the criterion it proves.
 - Expected values are a literal or a worked example from the work item, never recomputed the way the code computes them.
-- If the `tdd` skill is installed, follow it for the red → green loop.
 
 ## Accessibility (A11Y-01 to A11Y-05)
 
