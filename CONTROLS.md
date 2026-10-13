@@ -44,7 +44,7 @@ Use the page objects in `tests/pages/` for every UI test.
 ```
 
 - **`mode: merge`** (the default): a new ID adds a control, an existing ID replaces it, and severity `off` turns it off, with the reason in its Control cell. Controls the file doesn't mention stay.
-- **`mode: replace`**: the file's table is the whole set, and the layers before it are dropped.
+- **`mode: replace`**: the file is the whole set, and the layers before it are dropped, including their other tables and `## Instructions`.
 - **`extends`**: `<git URL>#<ref>:<path>` of a shared file, such as an organization's standards repo, applied before this file. `https` and `ssh` URLs only, and one level deep: an extended file's own `extends` is ignored.
 - **Other tables** (`## Scanners`, `## Escalation`) merge by row: new rows add, a matching Name replaces.
 - **`## Instructions`**: guidance the agent follows for this topic, after the default's. A later layer's instructions win where they conflict.
