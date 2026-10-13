@@ -76,4 +76,12 @@ run_case repo_extends_shared_deny deny 'git push --force-with-lease origin feat/
 run_case repo_extends_shared_ask ask 'gh pr review --repo org/project 5' "$work/repo-extends.yaml"
 run_case repo_invalid_mode_ignored ask 'git push origin feat/x' "$work/repo-invalid-mode.yaml"
 
+loader_out="$(python3 "$here/policy_loader.py" --default "$work/default.yaml" --repo "$work/repo-extends.yaml" --command 'gh pr review --repo org/project 5' 2>/dev/null || true)"
+if printf '%s' "$loader_out" | grep -Eq 'ask\tgh pr review'; then
+  echo 'PASS policy_loader_shared_extends -> ask'
+else
+  echo "FAIL policy_loader_shared_extends expected ask got: $loader_out"
+  exit 1
+fi
+
 echo 'guardrails-config tests passed'
