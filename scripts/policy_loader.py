@@ -109,6 +109,13 @@ def fetch_shared(spec):
     return candidate
 
 
+def fetch_shared_content(spec):
+    candidate = fetch_shared(spec)
+    if not candidate or not os.path.exists(candidate):
+        return ""
+    return open(candidate, encoding="utf-8").read()
+
+
 def merge(base, extra, mode):
     merged = {"deny": list(base.get("deny", [])), "ask": list(base.get("ask", []))}
     if mode == "replace":
@@ -142,7 +149,12 @@ def main():
     parser.add_argument("--default", dest="default_path", default="")
     parser.add_argument("--repo", dest="repo_path", default="")
     parser.add_argument("--command", dest="command", default="")
+    parser.add_argument("--fetch-shared", dest="fetch_shared_spec", default="")
     args = parser.parse_args()
+
+    if args.fetch_shared_spec:
+        print(fetch_shared_content(args.fetch_shared_spec), end="")
+        return 0
 
     result = effective_rules(args.default_path, args.repo_path, args.command)
     if result:
