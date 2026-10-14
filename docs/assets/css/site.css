@@ -53,7 +53,9 @@ blockquote { margin: 1rem 0; padding: 0.25rem 1rem; border-left: 4px solid var(-
   text-align: center;
   overflow-x: auto;
 }
-.diagram .mermaid { display: inline-block; max-width: 100%; }
+/* Block, not inline-block: Mermaid's SVG is width:100%, which an inline-block can't resolve and draws at 300px. */
+.diagram .mermaid { display: block; }
+.diagram svg { margin: 0 auto; }
 .diagram-toggle {
   display: block;
   margin: 0.75rem auto 0;

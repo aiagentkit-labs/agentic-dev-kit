@@ -33,7 +33,7 @@ flowchart TD
 ### Step 8: the review
 
 ```mermaid
-flowchart LR
+flowchart TD
   D[Your branch<br/>diff against the base] --> PR[PR Reviewer<br/>spec, tests, standards]
   D --> SEC[Security Reviewer<br/>security controls]
   D --> PRV[Privacy Reviewer<br/>privacy controls]
@@ -51,7 +51,7 @@ When nobody else can approve your PRs, the **solo** profile from `branch-policie
 ## pr-review: address the comments on your PR
 
 ```mermaid
-flowchart LR
+flowchart TD
   T[Collect open threads<br/>with the code they point at now] --> TR{Triage each thread}
   TR -->|fix| F[Fix test-first<br/>new commits on top]
   TR -->|answer, push back,<br/>or defer| D[Draft a reply]
@@ -68,7 +68,7 @@ A thread is **settled** when it's resolved, or holds your reply and waits on the
 ## pr-review: review someone else's PR
 
 ```mermaid
-flowchart LR
+flowchart TD
   F[Find the PR<br/>you pick] --> C[Read the context<br/>spec from the work item]
   C --> H[Check out the PR's head]
   H --> R[Three reviewers in parallel<br/>controls from the target branch]
@@ -83,7 +83,7 @@ The recommended vote follows from the findings: any blocker means *request chang
 ## lint: the files you touched
 
 ```mermaid
-flowchart LR
+flowchart TD
   D[1. Detect and check<br/>Lint Runner subagent] --> S{2. Missing tools?}
   S -->|yes| SU[Set up the baseline<br/>on your yes]
   SU --> D
@@ -99,7 +99,7 @@ The scope is the files changed against the base branch plus your uncommitted one
 ## branch-policies: team or solo
 
 ```mermaid
-flowchart LR
+flowchart TD
   R[1. Read the current policies] --> P{2. Who can approve?}
   P -->|others can| T[Team profile<br/>1+ approvers, author's vote doesn't count]
   P -->|only you| S[Solo profile<br/>approval rule relaxed, everything else kept]
