@@ -53,16 +53,24 @@ deny:
   - git push origin feat/x
 EOF
 
+: >"$work/empty-default.yaml"
+cat >"$work/repo-ask-broad.yaml" <<'EOF'
+ask:
+  - git push
+  - git reset
+  - rm -rf
+EOF
+
 payload() {
   local tool="$1" cmd="$2"
   printf '{"tool_name":"%s","tool_input":{"command":"%s"}}' "$tool" "$(printf '%s' "$cmd" | sed 's/\\/\\\\/g; s/"/\\"/g')"
 }
 
 run_case() {
-  local name="$1" expected="$2" cmd="$3" repo_path="${4:-$work/repo.yaml}"
+  local name="$1" expected="$2" cmd="$3" repo_path="${4:-$work/repo.yaml}" default_path="${5:-$work/default.yaml}"
   local payload_json out got
   payload_json="$(payload run_in_terminal "$cmd")"
-  out="$(AGENTIC_DEV_KIT_REPO_ROOT="$work" AGENTIC_DEV_KIT_GUARDRAILS_DEFAULT_PATH="$work/default.yaml" AGENTIC_DEV_KIT_GUARDRAILS_REPO_PATH="$repo_path" PAYLOAD="$payload_json" bash -c 'printf "%s" "$PAYLOAD" | bash "$0"' "$here/guardrails.sh")"
+  out="$(AGENTIC_DEV_KIT_REPO_ROOT="$work" AGENTIC_DEV_KIT_GUARDRAILS_DEFAULT_PATH="$default_path" AGENTIC_DEV_KIT_GUARDRAILS_REPO_PATH="$repo_path" PAYLOAD="$payload_json" bash -c 'printf "%s" "$PAYLOAD" | bash "$0"' "$here/guardrails.sh")"
   got="$(printf '%s' "$out" | sed -nE 's/.*"permissionDecision":"([a-z]+)".*/\1/p' | head -n 1)"
   [ -n "$got" ] || got=none
   if [ "$got" = "$expected" ]; then
@@ -79,6 +87,9 @@ run_case repo_override_clean deny 'git clean -fd' "$work/repo.yaml"
 run_case repo_extends_shared_deny deny 'git push --force-with-lease origin feat/x' "$work/repo-extends.yaml"
 run_case repo_extends_shared_ask ask 'gh pr review --repo org/project 5' "$work/repo-extends.yaml"
 run_case repo_invalid_mode_ignored ask 'git push origin feat/x' "$work/repo-invalid-mode.yaml"
+run_case repo_ask_keeps_builtin_force_push_deny deny 'git push --force origin feat/x' "$work/repo-ask-broad.yaml" "$work/empty-default.yaml"
+run_case repo_ask_keeps_builtin_reset_deny deny 'git reset --hard HEAD~1' "$work/repo-ask-broad.yaml" "$work/empty-default.yaml"
+run_case repo_ask_tightens_builtin_allow ask 'rm -rf .git/agentic-dev-kit/tmp' "$work/repo-ask-broad.yaml" "$work/empty-default.yaml"
 
 loader_out="$(python3 "$here/policy_loader.py" --default "$work/default.yaml" --repo "$work/repo-extends.yaml" --command 'gh pr review --repo org/project 5' 2>/dev/null || true)"
 if printf '%s' "$loader_out" | grep -Eq 'ask\tgh pr review'; then

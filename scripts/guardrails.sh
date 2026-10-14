@@ -45,12 +45,19 @@ config_decision() {
     pattern="${result#*$'\t'}"
     case "$decision" in
       deny) decide deny "custom guardrail rule matched: $pattern" ;;
-      ask) decide ask "custom guardrail rule matched: $pattern" ;;
+      # Defer: a config ask must not pre-empt a built-in deny below.
+      ask) config_ask="custom guardrail rule matched: $pattern" ;;
     esac
   fi
 }
 
+config_ask=""
 config_decision
+
+finish() {
+  [ -n "$config_ask" ] && decide ask "$config_ask"
+  exit 0
+}
 
 # Start of a command: line start or after a separator, so "legit push" never matches "git push".
 B='(^|[;&|(`[:space:]])'
@@ -62,7 +69,7 @@ if printf '%s' "$tool" | grep -Eq '(repo_pull_request_write|repo_pull_request_th
   decide ask "this writes to Azure DevOps."
 fi
 
-[ -n "$cmd" ] || exit 0
+[ -n "$cmd" ] || finish
 
 has "${B}git[[:space:]]+push[^;&|]*[[:space:]](--force|-f)([[:space:];&|]|$)" &&
   decide deny "force push is blocked; use --force-with-lease on your own feature branch."
@@ -86,7 +93,7 @@ has "--bypass-policy" &&
   decide deny "bypassing branch policies is blocked."
 
 if has "${B}rm[[:space:]]+(-[a-zA-Z]*r[a-zA-Z]*f|-[a-zA-Z]*f[a-zA-Z]*r|--recursive)"; then
-  has '^rm[[:space:]]+-[a-zA-Z]+[[:space:]]+"?[^[:space:];&|]*\.git/agentic-dev-kit[^[:space:];&|]*"?[[:space:]]*$' && exit 0
+  has '^rm[[:space:]]+-[a-zA-Z]+[[:space:]]+"?[^[:space:];&|]*\.git/agentic-dev-kit[^[:space:];&|]*"?[[:space:]]*$' && finish
   decide ask "recursive delete; confirm the target."
 fi
 
@@ -108,4 +115,4 @@ has "${B}az[[:space:]]+boards[[:space:]]+work-item[[:space:]]+(create|update|del
 hasi "${B}az[[:space:]]+devops[[:space:]]+invoke[^;&|]*--http-method[[:space:]=]+(POST|PATCH|PUT|DELETE)" &&
   decide ask "this writes through the Azure DevOps REST API."
 
-exit 0
+finish
