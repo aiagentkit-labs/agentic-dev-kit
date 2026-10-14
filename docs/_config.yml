@@ -1,0 +1,37 @@
+title: agentic-dev-kit
+description: Skills, reviewers, and guardrails for taking work items to tested pull requests with AI coding agents.
+url: https://aiagentkit-labs.github.io
+baseurl: /agentic-dev-kit
+repository_url: https://github.com/aiagentkit-labs/agentic-dev-kit
+
+markdown: kramdown
+kramdown:
+  input: GFM
+
+plugins:
+  - jekyll-relative-links
+  - jekyll-optional-front-matter
+  - jekyll-titles-from-headings
+
+relative_links:
+  enabled: true
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
+nav:
+  - title: Overview
+    url: /
+  - title: Getting started
+    url: /getting-started.html
+  - title: Workflows
+    url: /workflows.html
+  - title: Controls
+    url: /controls.html
+  - title: Recipes
+    url: /recipes.html
+  - title: Guardrails
+    url: /guardrails.html
