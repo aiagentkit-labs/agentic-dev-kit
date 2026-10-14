@@ -5,7 +5,7 @@ An [Agent Plugin](https://agent-plugins.org/) for GitHub Copilot in VS Code that
 ## How it fits together
 
 ```mermaid
-flowchart LR
+flowchart TD
   You([You]) --> Skill[A skill in chat<br/>ado-implement, pr-review, lint]
   Skill --> Gate{Gate:<br/>you decide}
   Gate -->|yes| Agent[The agent works<br/>branch, tests, commits]
