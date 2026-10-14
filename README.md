@@ -2,6 +2,8 @@
 
 An [Agent Plugin](https://agent-plugins.org/) that bundles skills for planning and shipping work with AI coding agents.
 
+**Documentation, with animated workflows: [aiagentkit-labs.github.io/agentic-dev-kit](https://aiagentkit-labs.github.io/agentic-dev-kit/)**
+
 | Skill | What it does | Invocation |
 |---|---|---|
 | `ado-implement` | Takes an Azure DevOps work item to a pull request, interviewing you at every gate | Automatic when you mention ADO / work items, or `/ado-implement` |
@@ -120,7 +122,7 @@ The skills' instructions and the check scripts guide the agent; they don't stop 
    - **Asks**: any other `git push` (including `--force-with-lease`), `gh pr` writes, `gh api` writes and GraphQL mutations, `az repos pr` / `az boards` writes, `az devops invoke` writes, every Azure DevOps MCP write tool, and recursive deletes outside `.git/agentic-dev-kit/`.
    - Hooks are in preview in VS Code: enable `chat.useHooks` and trust the workspace. In Claude Code, register `scripts/guardrails.sh` as a `PreToolUse` hook in your settings.
    - The hook finds the script through the client's plugin-root variable, else the default install folders under `~/.vscode`, `~/.vscode-insiders`, and `~/.copilot`. If it finds none, it lets tool calls through and prints a warning, because Copilot denies every tool call when a `PreToolUse` hook errors.
-   - To change the rules, edit the script and run [`scripts/guardrails.test.sh`](scripts/guardrails.test.sh).
+   - To add your own rules without editing the plugin, use `.github/guardrails/guardrails.yaml` in your repo; see the [guardrails docs](docs/guardrails.md). Your rules can only tighten the built-in ones. To change the built-in rules, edit the script and run [`scripts/guardrails.test.sh`](scripts/guardrails.test.sh).
 3. **Your repository's own policies**, the only layer that holds when everything else fails. Recommended:
    - **Azure Repos** branch policies on the default branch: require a PR with at least one reviewer, block authors approving their own changes, require linked work items, require comment resolution, require build validation, and add automatic reviewers for security- and privacy-sensitive paths.
    - **GitHub**: a ruleset with the same rules, `CODEOWNERS`, and secret scanning with push protection.
