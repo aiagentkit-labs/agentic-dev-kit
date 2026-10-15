@@ -143,6 +143,8 @@ Skills work in any client that supports [Agent Skills](https://agentskills.io/).
 
 ## Contributing
 
+Issues and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). Report bugs and feature ideas through the [issue forms](https://github.com/aiagentkit-labs/agentic-dev-kit/issues/new/choose), and security problems privately through **Security → Report a vulnerability**.
+
 Each skill lives in `skills/<name>/SKILL.md`; the folder name must match the skill's `name`. Custom agents are Copilot-specific, so they live in `com.github.copilot/agents/<name>.agent.md`; other clients ignore that folder, and `ado-implement` falls back to a general subagent that reads the same file. Bump `version` in `plugin.json` with every release so installed copies update.
 
 ## License

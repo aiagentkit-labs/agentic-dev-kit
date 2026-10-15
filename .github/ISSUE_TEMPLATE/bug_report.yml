@@ -1,0 +1,83 @@
+name: Bug report
+description: Something in the plugin doesn't work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please don't paste secrets, tokens, or private work-item content; redact them.
+        A security problem that others could exploit belongs in a private report instead: **Security → Report a vulnerability**.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where did it happen?
+      options:
+        - ado-implement
+        - pr-review
+        - lint
+        - branch-policies
+        - pr
+        - grilling / grill-me / teach
+        - Guardrails hook
+        - Controls or overrides
+        - Reviewer agents
+        - Install or setup
+        - Docs
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened, and what did you expect?
+      placeholder: When I ran /ado-implement on a bug work item, step 6 ... I expected ...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      description: The `version` in the installed plugin's plugin.json, or the tag you pinned.
+      placeholder: 0.6.0
+    validations:
+      required: true
+  - type: input
+    id: client
+    attributes:
+      label: Client and version
+      placeholder: VS Code 1.106 with GitHub Copilot Chat / Copilot CLI / Claude Code
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Windows
+        - Linux
+    validations:
+      required: true
+  - type: dropdown
+    id: host
+    attributes:
+      label: Where is your code hosted?
+      options:
+        - Azure Repos
+        - GitHub
+        - Not relevant
+  - type: textarea
+    id: output
+    attributes:
+      label: Output or screenshots
+      description: Preflight table (`check.sh pre <skill>`), error messages, or the chat round where it went wrong.
+      render: text

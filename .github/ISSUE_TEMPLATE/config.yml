@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://aiagentkit-labs.github.io/agentic-dev-kit/
+    about: Install, workflows, controls, recipes, and guardrails.
+  - name: Report a security vulnerability
+    url: https://github.com/aiagentkit-labs/agentic-dev-kit/security/advisories/new
+    about: Report privately, not in a public issue.

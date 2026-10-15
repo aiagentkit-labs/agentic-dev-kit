@@ -1,0 +1,29 @@
+name: Feature request
+description: Suggest a new skill, control, guardrail rule, or improvement.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the situation, not the solution, so we can find the best fit.
+      placeholder: Our team reviews every PR for ... and the kit doesn't ...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What have you tried instead?
+      description: For example, a repo override, a custom instruction, or a guardrail rule in `.github/guardrails/guardrails.yaml`.
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd like to open a pull request for this.
