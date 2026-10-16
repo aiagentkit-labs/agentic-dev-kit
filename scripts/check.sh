@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Preflight and postflight checks for agentic-dev-kit skills; run from the user's repo root.
-# Usage: check.sh pre|post <ado-implement|pr-review|branch-policies> [--skip git,az,gh,node,dotnet]
+# Usage: check.sh pre|post <implement|ado-implement|pr-review|branch-policies> [--skip git,az,gh,node,dotnet]
 set -u
 
 phase="${1:-}"
 skill="${2:-}"
-usage="usage: check.sh pre|post <ado-implement|pr-review|branch-policies> [--skip git,az,gh,node,dotnet]"
+usage="usage: check.sh pre|post <implement|ado-implement|pr-review|branch-policies> [--skip git,az,gh,node,dotnet]"
 case "$phase" in pre|post) ;; *) echo "$usage" >&2; exit 2 ;; esac
-case "$skill" in ado-implement|pr-review|branch-policies) ;; *) echo "unknown skill: $skill" >&2; exit 2 ;; esac
+case "$skill" in implement|ado-implement|pr-review|branch-policies) ;; *) echo "unknown skill: $skill" >&2; exit 2 ;; esac
 skip=""
 case "${3:-}" in
   "") ;;
@@ -58,8 +58,8 @@ pre() {
     report PASS "origin: $host"
   fi
 
-  if skipped az "az CLI"; then :
-  elif have az; then
+  if [ "$skill" = ado-implement ] && skipped az "az CLI"; then :
+  elif [ "$skill" = ado-implement ] && have az; then
     if az extension show --name azure-devops >/dev/null 2>&1; then
       report PASS "az + azure-devops"
     else
@@ -70,7 +70,7 @@ pre() {
     else
       report WARN "az login" "run 'az login' in your own terminal (CLI fallback only)"
     fi
-  else
+  elif [ "$skill" = ado-implement ]; then
     report WARN "az CLI" "needed only when the ADO MCP server can't sign in; run install.sh"
   fi
 
@@ -91,7 +91,7 @@ pre() {
     fi
   fi
 
-  if [ "$skill" = ado-implement ] && [ -f package.json ] && ! skipped node "node / npx"; then
+  if [ "$skill" = implement -o "$skill" = ado-implement ] && [ -f package.json ] && ! skipped node "node / npx"; then
     if have node && have npx; then
       report PASS "node $(node --version)"
     else
@@ -99,7 +99,7 @@ pre() {
     fi
   fi
 
-  if [ "$skill" = ado-implement ] && [ -n "$(git ls-files '*.sln' '*.slnx' '*.csproj' | head -1)" ] && ! skipped dotnet "dotnet SDK"; then
+  if { [ "$skill" = implement ] || [ "$skill" = ado-implement ]; } && [ -n "$(git ls-files '*.sln' '*.slnx' '*.csproj' | head -1)" ] && ! skipped dotnet "dotnet SDK"; then
     if have dotnet && dotnet --version >/dev/null 2>&1; then
       report PASS "dotnet $(dotnet --version)"
     else
@@ -154,7 +154,7 @@ post() {
         report FAIL "branch" "on $branch; the user started on $start_branch"
       fi
       ;;
-    ado-implement)
+    implement | ado-implement)
       if [ "$branch" = DETACHED ]; then
         report FAIL "branch" "detached HEAD"
       elif ! git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then

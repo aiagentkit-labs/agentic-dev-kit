@@ -6,8 +6,8 @@ The rules the skills and reviewers apply, by topic. Each topic has a plugin defa
 |---|---|---|---|
 | `security` | [review-controls/security.md](review-controls/security.md) | `.github/review-controls/security.md` | Security Reviewer |
 | `privacy` | [review-controls/privacy.md](review-controls/privacy.md) | `.github/review-controls/privacy.md` | Privacy Reviewer |
-| `testing` | [testing-controls/testing.md](testing-controls/testing.md) | `.github/testing-controls/testing.md` | `ado-implement` test plan, PR Reviewer |
-| `practices` | [practice-controls/practices.md](practice-controls/practices.md) | `.github/practice-controls/practices.md` | `ado-implement` and `pr-review` gates, PR Reviewer |
+| `testing` | [testing-controls/testing.md](testing-controls/testing.md) | `.github/testing-controls/testing.md` | `implement` test plan, PR Reviewer |
+| `practices` | [practice-controls/practices.md](practice-controls/practices.md) | `.github/practice-controls/practices.md` | `implement` and `pr-review` gates, PR Reviewer |
 | `lint` | [lint-controls/lint.md](lint-controls/lint.md) | `.github/lint-controls/lint.md` | `lint`, Lint Runner, PR Reviewer |
 
 ## Reading controls

@@ -43,8 +43,8 @@ In Claude Code, register `scripts/guardrails.sh` as a `PreToolUse` hook in your 
 Each skill checks its own prerequisites before it runs. You can run the same check yourself from your repo:
 
 ```bash
-<plugin>/scripts/check.sh pre ado-implement
-<plugin>/scripts/check.sh pre ado-implement --skip gh
+<plugin>/scripts/check.sh pre implement
+<plugin>/scripts/check.sh pre implement --skip gh
 ```
 
 It checks git, the `az` CLI with its `azure-devops` extension, `gh` and its sign-in for GitHub repos, `node` for web projects, the .NET SDK for .NET projects, and your working tree. On Windows, use `check.ps1`.
@@ -58,15 +58,27 @@ If a tool works in your terminal but the check says it won't run, VS Code is sti
 The plugin contains no credentials; everyone signs in with their own account.
 
 - **Azure DevOps MCP server**: VS Code prompts for a Microsoft Entra sign-in the first time a tool is used. Your Azure DevOps organization must be backed by Microsoft Entra ID.
-- **Fallback**: if the MCP server can't sign in, `ado-implement` switches to the `az` CLI, using `az login` or a personal access token you export as `AZURE_DEVOPS_EXT_PAT`.
+- **Fallback**: if the Azure DevOps MCP server can't sign in, `implement` switches to the `az` CLI, using `az login` or a personal access token you export as `AZURE_DEVOPS_EXT_PAT`. For Jira or another tracker, use an available adapter; without one, paste or export its task text.
 - **GitHub-hosted code**: pull requests are opened with the `gh` CLI, signed in with `gh auth login`.
 
 ## Your first run
 
-Start with a work item and an interview mode, and let the skill drive:
+Start with any task source and an interview mode:
 
 ```text
-/ado-implement https://dev.azure.com/<org>/<project>/_workitems/edit/<id> teach
+/implement https://dev.azure.com/<org>/<project>/_workitems/edit/<id> teach
 ```
+
+Other examples:
+
+```text
+/implement Jira issue PROJ-123 grill
+/implement path/to/task.md grill
+/implement "Add CSV export to the reports page. Users can choose the columns and date range."
+```
+
+The Jira example requires a Jira MCP/CLI adapter; a Jira URL alone does not provide access. If none is configured, export or paste the issue text instead. The skill can offer to save the agreed task as `work-items/<slug>.md`; see [task record format](../skills/implement/TASK-RECORD.md). A repository policy may still require a linked tracker issue before merge.
+
+For a pasted request, use `/implement` followed by the task text. For a local file, use `/implement path/to/task.md`. `/ado-implement` remains available as the ADO-specific compatibility command.
 
 **Grill** mode asks the decisions; **teach** mode also explains why and checks your recall. See [Workflows](workflows.md) for every step.

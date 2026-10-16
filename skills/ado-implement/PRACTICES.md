@@ -1,10 +1,10 @@
 # Practices
 
-Why the [practice controls](../../practice-controls/practices.md) matter and how to meet them, for [`ado-implement`](SKILL.md) and [`pr-review`](../pr-review/SKILL.md); each section names the control IDs it serves. Read the merged controls first ([CONTROLS.md](../../CONTROLS.md)): where the repo overrides a control, the override wins over this file. When a control is missed, name its ID, say why it matters in one line, and recommend the fix. In teach mode, cite the section's source.
+Why the [practice controls](../../practice-controls/practices.md) matter and how to meet them, for [`implement`](../implement/SKILL.md), its ADO compatibility entry point, and [`pr-review`](../pr-review/SKILL.md); each section names the control IDs it serves. Read the merged controls first ([CONTROLS.md](../../CONTROLS.md)): where the repo overrides a control, the override wins over this file. When a control is missed, name its ID, say why it matters in one line, and recommend the fix. In teach mode, cite the section's source.
 
-## Descriptive work items (WI-01 to WI-06)
+## Descriptive task requests (WI-01 to WI-06)
 
-An item is ready when a reviewer who never spoke to its author could tell what "done" looks like. When an item falls short, draft the improved fields and offer to write them back. Source: [Azure Boards: best practices, team backlog](https://learn.microsoft.com/azure/devops/boards/best-practices-agile-project-management#team-backlog).
+A task request is ready when a reviewer who never spoke to its author could tell what "done" looks like. When it falls short, draft the improved fields and offer to update the source only if its adapter supports writes. Source: [Azure Boards: best practices, team backlog](https://learn.microsoft.com/azure/devops/boards/best-practices-agile-project-management#team-backlog).
 
 ## Small PRs (PR-01, PR-02)
 
@@ -17,7 +17,7 @@ Ways to split, in order of preference:
 3. **Feature flag**: merge incomplete work dark, behind a flag.
 4. **Stacked PRs**: each targets the previous branch; merge bottom-up.
 
-Record each split as a child task on the work item, so the backlog reflects the plan.
+Record each split as a child task when the source provider supports it; otherwise offer separate Markdown task records so the plan remains traceable.
 
 ## Branches (BR-01 to BR-03)
 
@@ -29,8 +29,8 @@ A commit that builds and does one thing can be reviewed, reverted, and bisected 
 
 ## Pull requests (PR-03 to PR-06)
 
-A linked work item lets branch policies and traceability work. Source: [Azure Repos: create a PR](https://learn.microsoft.com/azure/devops/repos/git/pull-requests).
+A linked source task lets provider integrations and reviewers trace the change. When the task has no external tracker, link its saved task record or include the agreed task summary and acceptance criteria in the PR.
 
 ## Working solo (SOLO-01)
 
-With no second person to approve, a PR still runs the pipeline, records the review, and links the work item. Relax only the approval rule (the `branch-policies` skill's solo profile). Let the PR, Security, and Privacy reviewers stand in as the second reader. Before approving your own PR, re-read its diff after a break.
+With no second person to approve, a PR still runs the pipeline and records the review. Relax only the approval rule (the `branch-policies` skill's solo profile). Let the PR, Security, and Privacy reviewers stand in as the second reader. Before approving your own PR, re-read its diff after a break.

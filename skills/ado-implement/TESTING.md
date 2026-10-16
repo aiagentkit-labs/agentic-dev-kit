@@ -16,7 +16,7 @@ Use the repo's existing runners and helpers first. Find them in the environment:
 ## Unit (TST-02)
 
 - A test reads like the criterion it proves.
-- Expected values are a literal or a worked example from the work item, never recomputed the way the code computes them.
+- Expected values are literal or taken from the agreed task specification, never recomputed the way the code computes them.
 - If the `tdd` skill is installed, follow it for the red → green loop.
 
 ## Accessibility (A11Y-01 to A11Y-05)

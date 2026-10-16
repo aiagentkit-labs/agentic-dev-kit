@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "agentic-dev-kit",
-  "version": "0.6.0",
-  "description": "Skills for planning and shipping work with AI agents: stress-test plans, learn new concepts, and take Azure DevOps work items to a tested pull request through a guided interview.",
+  "version": "0.7.0",
+  "description": "Skills for planning and shipping work with AI agents: start from a tracker, pasted request, or task file; implement test-first; review; and open a pull request through a guided interview.",
   "author": {
     "name": "puttagunta"
   },

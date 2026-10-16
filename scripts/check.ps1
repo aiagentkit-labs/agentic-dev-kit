@@ -1,10 +1,10 @@
 <#
 Preflight and postflight checks for agentic-dev-kit skills; run from the user's repo root.
-Usage: check.ps1 -Phase pre|post -Skill ado-implement|pr-review|branch-policies [-SkipChecks git,az,gh,node,dotnet]
+Usage: check.ps1 -Phase pre|post -Skill implement|ado-implement|pr-review|branch-policies [-SkipChecks git,az,gh,node,dotnet]
 #>
 param(
   [Parameter(Mandatory)][ValidateSet('pre', 'post')][string]$Phase,
-  [Parameter(Mandatory)][ValidateSet('ado-implement', 'pr-review', 'branch-policies')][string]$Skill,
+  [Parameter(Mandatory)][ValidateSet('implement', 'ado-implement', 'pr-review', 'branch-policies')][string]$Skill,
   [ValidateSet('git', 'az', 'gh', 'node', 'dotnet')][string[]]$SkipChecks = @()
 )
 
@@ -46,15 +46,15 @@ function Invoke-Pre {
     Report PASS "origin: $hostKind"
   }
 
-  if (Skipped az 'az CLI') { }
-  elseif (Have az) {
+  if ($Skill -eq 'ado-implement' -and (Skipped az 'az CLI')) { }
+  elseif ($Skill -eq 'ado-implement' -and (Have az)) {
     az extension show --name azure-devops *> $null
     if ($LASTEXITCODE -eq 0) { Report PASS 'az + azure-devops' }
     else { Report WARN 'azure-devops extension' 'az extension add --name azure-devops' }
     az account show *> $null
     if ($LASTEXITCODE -eq 0) { Report PASS 'az login' }
     else { Report WARN 'az login' "run 'az login' in your own terminal (CLI fallback only)" }
-  } else {
+  } elseif ($Skill -eq 'ado-implement') {
     Report WARN 'az CLI' "needed only when the ADO MCP server can't sign in; run install.ps1"
   }
 
@@ -72,12 +72,12 @@ function Invoke-Pre {
     }
   }
 
-  if ($Skill -eq 'ado-implement' -and (Test-Path package.json) -and -not (Skipped node 'node / npx')) {
+  if ($Skill -in @('implement', 'ado-implement') -and (Test-Path package.json) -and -not (Skipped node 'node / npx')) {
     if ((Have node) -and (Have npx)) { Report PASS "node $(node --version)" }
     else { Report WARN 'node / npx' 'needed for Playwright and axe tests; run install.ps1' }
   }
 
-  if ($Skill -eq 'ado-implement' -and (git ls-files '*.sln' '*.slnx' '*.csproj' | Select-Object -First 1) -and -not (Skipped dotnet 'dotnet SDK')) {
+  if ($Skill -in @('implement', 'ado-implement') -and (git ls-files '*.sln' '*.slnx' '*.csproj' | Select-Object -First 1) -and -not (Skipped dotnet 'dotnet SDK')) {
     if (Have dotnet) { Report PASS "dotnet $(dotnet --version)" }
     else { Report WARN 'dotnet SDK' 'needed to build, test, and lint .NET code; https://dot.net' }
   }
@@ -117,7 +117,7 @@ function Invoke-Post {
       if ($branch -eq $state.start_branch) { Report PASS "back on $branch" }
       else { Report FAIL 'branch' "on $branch; the user started on $($state.start_branch)" }
     }
-    'ado-implement' {
+    { $_ -in 'implement', 'ado-implement' } {
       if ($branch -eq 'DETACHED') { Report FAIL 'branch' 'detached HEAD' }
       else {
         git rev-parse --abbrev-ref '@{u}' *> $null
