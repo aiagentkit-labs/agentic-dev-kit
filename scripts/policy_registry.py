@@ -32,14 +32,14 @@ TOPIC_REGISTRY: Dict[str, Dict[str, object]] = {
         "repo_override_path": ".github/testing-controls/testing.md",
         "valid_severities": ["blocker", "should-fix", "nit", "escalate", "setup", "off"],
         "merge_mode": "merge",
-        "applied_by": "PR Reviewer / ado-implement",
+        "applied_by": "PR Reviewer / implement",
     },
     "practices": {
         "default_path": "practice-controls/practices.md",
         "repo_override_path": ".github/practice-controls/practices.md",
         "valid_severities": ["blocker", "should-fix", "nit", "escalate", "setup", "off"],
         "merge_mode": "merge",
-        "applied_by": "ado-implement / PR Reviewer",
+        "applied_by": "implement / PR Reviewer",
     },
     "lint": {
         "default_path": "lint-controls/lint.md",

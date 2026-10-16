@@ -33,9 +33,9 @@ Done when every open thread is listed with its current code.
 **Gate**: one question per thread. Classify it (change request, question, suggestion, nitpick, outdated) and recommend one response:
 
 - **Fix**: the reviewer is right; say what you'll change.
-- **Answer**: a question, answered from the code or the work item.
+- **Answer**: a question, answered from the code or the accepted task specification.
 - **Push back**: the change would break an acceptance criterion, widen scope, or rests on a misreading. Give the reason with the line or criterion that backs it.
-- **Defer**: valid but outside this item; becomes a follow-up work item linked to this one.
+- **Defer**: valid but outside this task; becomes a follow-up tracker task or Markdown task record linked from the PR.
 
 Recommend fix unless the evidence says otherwise. Facts in the code are yours to find; the call on each thread is the user's.
 

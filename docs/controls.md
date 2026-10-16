@@ -6,8 +6,8 @@ Every rule the kit applies is a **control** with an ID, such as `SEC-03` or `TST
 |---|---|---|---|
 | `security` | [review-controls/security.md](https://github.com/aiagentkit-labs/agentic-dev-kit/blob/main/review-controls/security.md) | `.github/review-controls/security.md` | Security Reviewer |
 | `privacy` | [review-controls/privacy.md](https://github.com/aiagentkit-labs/agentic-dev-kit/blob/main/review-controls/privacy.md) | `.github/review-controls/privacy.md` | Privacy Reviewer |
-| `testing` | [testing-controls/testing.md](https://github.com/aiagentkit-labs/agentic-dev-kit/blob/main/testing-controls/testing.md) | `.github/testing-controls/testing.md` | `ado-implement`, PR Reviewer |
-| `practices` | [practice-controls/practices.md](https://github.com/aiagentkit-labs/agentic-dev-kit/blob/main/practice-controls/practices.md) | `.github/practice-controls/practices.md` | `ado-implement`, `pr-review`, PR Reviewer |
+| `testing` | [testing-controls/testing.md](https://github.com/aiagentkit-labs/agentic-dev-kit/blob/main/testing-controls/testing.md) | `.github/testing-controls/testing.md` | `implement`, PR Reviewer |
+| `practices` | [practice-controls/practices.md](https://github.com/aiagentkit-labs/agentic-dev-kit/blob/main/practice-controls/practices.md) | `.github/practice-controls/practices.md` | `implement`, `pr-review`, PR Reviewer |
 | `lint` | [lint-controls/lint.md](https://github.com/aiagentkit-labs/agentic-dev-kit/blob/main/lint-controls/lint.md) | `.github/lint-controls/lint.md` | `lint`, Lint Runner, PR Reviewer |
 
 ## Three layers

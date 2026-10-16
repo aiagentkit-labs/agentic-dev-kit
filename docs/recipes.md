@@ -80,7 +80,7 @@ mode: replace
 | ID | Control | Severity |
 |---|---|---|
 | PR-01 | A PR changes under 200 lines of hand-written code | blocker |
-| PR-05 | A PR links its work item | blocker |
+| PR-05 | A PR links the tracker task or task-record file, or includes the accepted task summary and criteria | blocker |
 | CM-02 | A commit subject is imperative and at most 72 characters | nit |
 ```
 

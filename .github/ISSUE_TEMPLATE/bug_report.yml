@@ -12,7 +12,8 @@ body:
     attributes:
       label: Where did it happen?
       options:
-        - ado-implement
+        - implement
+        - ado-implement (legacy ADO command)
         - pr-review
         - lint
         - branch-policies

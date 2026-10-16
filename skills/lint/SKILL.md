@@ -5,8 +5,8 @@ description: Run, fix, and set up linters and formatters for .NET (C#) and TypeS
 
 Make the files the user touched pass the repo's linters and formatters, and set those tools up where the repo has none. The repo's config and scripts are the rules: this skill runs them and leaves their choices alone unless the user decides otherwise at a gate.
 
-- **On its own** (`/lint`): use the interview mode from [ado-implement step 0](../ado-implement/SKILL.md#0-pick-the-interview-mode), with each gate a round in the format of [ado-implement's Rounds](../ado-implement/SKILL.md#rounds). Open each gate with `Lint · Step N · Round k`.
-- **Inside another skill** (`ado-implement`, `pr-review`): use that skill's mode, and fold this skill's gates into its current round.
+- **On its own** (`/lint`): use the interview mode and round format from [implement](../implement/SKILL.md#rounds). Open each gate with `Lint · Step N · Round k`.
+- **Inside another skill** (`implement`, `ado-implement`, `pr-review`): use that skill's mode, and fold this skill's gates into its current round.
 
 **Controls**: take the merged `lint` controls from the calling skill, or read them with [controls.sh](../../scripts/controls.sh) `lint --ref origin/<base>` ([CONTROLS.md](../../CONTROLS.md)). They set the scope (`LINT-01`), what must pass (`LINT-02`, `LINT-03`), how a suppression looks (`LINT-04`), and the baselines (`LINT-10` to `LINT-12`). List any the repo turned off in the first round.
 

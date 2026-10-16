@@ -1,18 +1,18 @@
 # Workflows
 
-Every skill works the same way: it gathers facts itself, then stops at a **gate** where you decide. Nothing is pushed, posted, or written to Azure DevOps or GitHub without your yes.
+Every skill works the same way: it gathers facts itself, then stops at a **gate** where you decide. Nothing is pushed, posted, or written to a tracker or shared host without your yes.
 
-## ado-implement: work item to pull request
+## implement: task to pull request
 
 ```mermaid
 flowchart TD
   M[0. Pick the interview mode<br/>grill or teach] --> C[1. Connect<br/>MCP server, else az CLI]
-  C --> S[2. Select the work item]
+  C --> S[2. Select or load the task<br/>tracker, text, or file]
   S --> A[3. Assess the item<br/>scorecard and a rewrite]
   A --> SC[4. Settle scope<br/>acceptance checklist, small-PR split]
   SC --> B[5. Branch<br/>off a freshly fetched base]
   B --> I[6. Implement test-first<br/>red then green, lint touched files]
-  I --> CM[7. Commit<br/>linked to the work item]
+  I --> CM[7. Commit<br/>source key when supported]
   CM --> R[8. Review<br/>three read-only reviewers]
   R --> P[9. Open the pull request<br/>pushed on your yes]
   P --> H[10. Hand back<br/>evidence per criterion]
@@ -20,15 +20,15 @@ flowchart TD
 
 | Step | Gate: what you decide |
 |---|---|
-| 2. Select | Which item to work on. Several items run one at a time, one branch and PR each. |
-| 3. Assess | The rewritten item: every gap filled with a default marked as an assumption, which you accept or amend |
+| 2. Select | Which task to work on. Several tasks run one at a time, one branch and PR each. |
+| 3. Assess | The normalized task: every gap filled with a default marked as an assumption, which you accept or amend; optionally save it as a Markdown task record |
 | 4. Settle scope | The acceptance checklist, each entry with the check that proves it, and any split into smaller PRs |
 | 5. Branch | The base branch and the new branch's name |
 | 6. Implement | The test plan: the layer, seam, and test name for each checklist entry, and any new packages |
 | 7. Commit | The staged files and the commit message |
 | 8. Review | The merged findings, the fixes made, which nits to take, and any `escalate` findings |
 | 9. Pull request | Title, target, draft or not, reviewers, merge strategy, and the full body |
-| 10. Hand back | Which Azure DevOps updates to make: state change, comment with the PR link |
+| 10. Hand back | Evidence per criterion, optional task-record save, and any supported tracker updates |
 
 ### Step 8: the review
 
@@ -44,9 +44,9 @@ flowchart TD
   FX --> G{Gate:<br/>you review}
 ```
 
-The three reviewers run in parallel, each starting with an empty context. Each gets the work item, the acceptance checklist with its evidence, the full diff, and its [controls](controls.md), read from the base branch, so the change under review can't rewrite them. Reviewers that reported blockers run again until none remain.
+The three reviewers run in parallel, each starting with an empty context. Each gets the task or task-record content, the acceptance checklist with its evidence, the full diff, and its [controls](controls.md), read from the base branch, so the change under review can't rewrite them. Reviewers that reported blockers run again until none remain.
 
-When nobody else can approve your PRs, the **solo** profile from `branch-policies` applies, and `ado-implement` posts the reviewers' findings on the PR as its review record.
+When nobody else can approve your PRs, the **solo** profile from `branch-policies` applies, and `implement` posts the reviewers' findings on the PR as its review record. `/ado-implement` remains a compatibility entry point that runs this same workflow with an ADO source.
 
 ## pr-review: address the comments on your PR
 
@@ -63,13 +63,13 @@ flowchart TD
   L -->|yes| Done([Done])
 ```
 
-A thread is **settled** when it's resolved, or holds your reply and waits on the reviewer. A pushed-back thread stays open for the reviewer to resolve; a deferred one becomes a follow-up work item.
+A thread is **settled** when it's resolved, or holds your reply and waits on the reviewer. A pushed-back thread stays open for the reviewer to resolve; a deferred one becomes a follow-up tracker task or task record.
 
 ## pr-review: review someone else's PR
 
 ```mermaid
 flowchart TD
-  F[Find the PR<br/>you pick] --> C[Read the context<br/>spec from the work item]
+  F[Find the PR<br/>you pick] --> C[Read the context<br/>spec from the source task or PR]
   C --> H[Check out the PR's head]
   H --> R[Three reviewers in parallel<br/>controls from the target branch]
   R --> V[Verify every cited line<br/>drop what can't be confirmed]

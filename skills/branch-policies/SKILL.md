@@ -5,7 +5,7 @@ description: Review and set branch policies on Azure Repos or GitHub through an 
 
 Branch policies are shared infrastructure. Show every change as before and after, apply it only on the user's yes, and leave the user able to revert it. Changing policies needs admin rights: **Edit policies** on the Azure Repos repository, or admin on the GitHub repository.
 
-Run the [preflight and postflight](../../scripts/check.sh) as the other skills do (`check.sh pre|post branch-policies`), and show each table. Use the interview mode from [ado-implement step 0](../ado-implement/SKILL.md#0-pick-the-interview-mode), with each gate a round in the format of [ado-implement's Rounds](../ado-implement/SKILL.md#rounds).
+Run the [preflight and postflight](../../scripts/check.sh) as the other skills do (`check.sh pre|post branch-policies`), and show each table. Use the interview mode from [implement](../implement/SKILL.md#rounds), with each gate a round in that format.
 
 ## Profiles
 
@@ -15,7 +15,7 @@ Run the [preflight and postflight](../../scripts/check.sh) as the other skills d
 | Minimum approvers | 1+, the author's vote doesn't count | Azure Repos: 1, the author's own vote counts. GitHub: 0 (GitHub never lets authors approve) |
 | Reset approvals on new pushes | on | on |
 | Build validation / required status checks | required | required |
-| Linked work item (Azure Repos) | required | required |
+| Linked work item (Azure Repos only, if enabled by the repo) | required | required |
 | Comments resolved before merge | required | required |
 | Force pushes and branch deletion | blocked | blocked |
 
@@ -50,4 +50,4 @@ Branch policies are never bypassed and never disabled wholesale. The guardrail h
 
 ## 4. Verify and report
 
-Re-read the policies (step 1). Done when they match the target. Report before and after, the revert commands, and what the profile means day to day: in solo, [ado-implement](../ado-implement/SKILL.md) posts the reviewers' findings on each PR and asks before the user approves their own.
+Re-read the policies (step 1). Done when they match the target. Report before and after, the revert commands, and what the profile means day to day: in solo, [implement](../implement/SKILL.md) posts the reviewers' findings on each PR and asks before the user approves their own.
