@@ -77,6 +77,12 @@ Identify source mode: tracker, pasted text, or local file. For a tracker, discov
 
 Only use capabilities actually exposed by the integration. A provider may be read-only. Do not block implementation because optional update/link capabilities are absent.
 
+### Detecting a tracker connection
+
+At run time, inspect the tools exposed to the current chat/session. Use tool names and descriptions to identify provider operations; do not assume a connection from the issue URL, ID shape, or a server name alone. Map only operations that are actually exposed to the capability table above. Before treating a tracker as connected, use its read-only get/fetch operation on the user-supplied issue and confirm it returns that issue. If the client does not expose a relevant tool, or the read fails because the server is disabled, unauthenticated, or lacks permission, treat the tracker as unavailable and offer pasted/exported task text. Never probe with a write.
+
+VS Code can expose MCP servers configured by the user, workspace, or installed plugins to the active chat when their tools are enabled. This plugin currently bundles the Azure DevOps MCP server in `mcp.json`; it does not bundle a Jira server. Installing the plugin alone therefore does not connect Jira. A user's existing Jira MCP server can be used when it exposes the needed tools to the session.
+
 **Gate:** selected source and connection, or confirmation that the pasted/file text is the source. Tell the user which tracker operations are unavailable and what fallback applies.
 
 ## 2. Select or load the task

@@ -61,6 +61,8 @@ The plugin contains no credentials; everyone signs in with their own account.
 - **Fallback**: if the Azure DevOps MCP server can't sign in, `implement` switches to the `az` CLI, using `az login` or a personal access token you export as `AZURE_DEVOPS_EXT_PAT`. For Jira or another tracker, use an available adapter; without one, paste or export its task text.
 - **GitHub-hosted code**: pull requests are opened with the `gh` CLI, signed in with `gh auth login`.
 
+For tracker discovery, `implement` inspects MCP tools exposed to the current chat, maps only operations those tools actually provide, then verifies access with a read-only fetch of the supplied issue. An issue URL by itself is not a connection. This plugin bundles the Azure DevOps MCP server in `mcp.json`, not a Jira server. To use Jira, configure and enable a Jira MCP server in VS Code (or add an adapter to the plugin); it can then use those tools if they are exposed to the active chat. If no Jira tools are available, paste or export the issue text instead.
+
 ## Your first run
 
 Start with any task source and an interview mode:
