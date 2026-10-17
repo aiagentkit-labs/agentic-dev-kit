@@ -23,7 +23,7 @@ An [Agent Plugin](https://agent-plugins.org/) that bundles skills for planning a
 | `Privacy Reviewer` | Read-only data-flow review against [privacy controls](review-controls/privacy.md) plus your organization's | Subagent, in parallel with `PR Reviewer` |
 | `Lint Runner` | Runs the repo's linters, formatters, and type checks in check mode and returns findings grouped as auto-fix, code change, or rule question, keeping long lint output out of your chat | Subagent of `lint` |
 
-It also connects the [hosted Azure DevOps MCP server](https://learn.microsoft.com/azure/devops/mcp-server/remote-mcp-server), limited to work-item, iteration, and repository tools. `implement` can also start from pasted text or a local task file; Jira or another tracker needs an available MCP/CLI adapter, otherwise paste or export its task text.
+It connects the [hosted Azure DevOps MCP server](https://learn.microsoft.com/azure/devops/mcp-server/remote-mcp-server) for work items, iterations, and repositories, and Atlassian's hosted Rovo MCP server for Jira and other Atlassian apps. Users authenticate with their own accounts. `implement` can also start from pasted text or a local task file; other trackers need an available MCP/CLI adapter, otherwise paste or export their task text.
 
 ## The `implement` flow
 
@@ -50,7 +50,7 @@ reviewer   pick PR -> check out head -> PR Reviewer subagent -> verify findings
            -> choose what to post + vote -> post on your yes -> re-review later
 ```
 
-Each step ends at a gate where you decide; nothing is pushed or written to a tracker or shared host without your yes. Jira access requires a Jira MCP/CLI adapter; without one, use pasted or exported Jira text.
+Each step ends at a gate where you decide; nothing is pushed or written to a tracker or shared host without your yes. Jira access requires Atlassian sign-in and permission to the issue.
 
 Start with a task source and the interview mode, and let the skill drive:
 
@@ -58,7 +58,7 @@ Start with a task source and the interview mode, and let the skill drive:
 /implement https://dev.azure.com/<org>/<project>/_workitems/edit/<id> teach
 ```
 
-You can also start with pasted task text, a local Markdown/text file path, or a Jira URL/key when a Jira MCP/CLI adapter is available. Without a Jira adapter, export or paste the issue text. `/ado-implement` remains available as an Azure Boards compatibility alias. Accepted tasks can optionally be saved in `work-items/<slug>.md` using [TASK-RECORD.md](skills/implement/TASK-RECORD.md).
+You can also start with pasted task text, a local Markdown/text file path, or a Jira URL/key after Atlassian sign-in. `/ado-implement` remains available as an Azure Boards compatibility alias. Accepted tasks can optionally be saved in `work-items/<slug>.md` using [TASK-RECORD.md](skills/implement/TASK-RECORD.md).
 
 Anything else you add (for example "one question at a time") overrides the skill's defaults for pace. The steps and gates still apply. Best practices (clear task criteria, small PRs, branch and commit hygiene) are checked along the way: see [PRACTICES.md](skills/ado-implement/PRACTICES.md) and [TESTING.md](skills/ado-implement/TESTING.md). Accepted tasks can optionally be saved as Markdown in `work-items/<slug>.md`; see [TASK-RECORD.md](skills/implement/TASK-RECORD.md).
 
@@ -137,7 +137,9 @@ The skills' instructions and the check scripts guide the agent; they don't stop 
 The plugin contains no credentials. Each user signs in with their own account:
 
 - **Azure DevOps MCP server**: your client prompts for a Microsoft Entra sign-in the first time a tool is used. Your Azure DevOps organization must be backed by Microsoft Entra ID.
-- **Fallback**: if the Azure DevOps MCP server can't authenticate, `implement` switches to the `az` CLI (`az boards`, `az repos`), using `az login` or a personal access token you export as `AZURE_DEVOPS_EXT_PAT` in your own terminal. For Jira or another tracker without an available adapter, paste or export the task text and use the local task-record option.
+- **Azure DevOps**: if its MCP server can't authenticate, `implement` switches to the `az` CLI (`az boards`, `az repos`), using `az login` or a personal access token you export as `AZURE_DEVOPS_EXT_PAT` in your own terminal.
+- **Jira / Atlassian**: the plugin configures Atlassian's hosted Rovo MCP server. VS Code prompts you to authorize Atlassian on first use; access is limited by your account's site and project permissions. Some enriched Rovo operations may consume Rovo credits.
+- **Other trackers**: use a connected MCP/CLI adapter, or paste/export the task text and optionally save a local task record.
 - **GitHub-hosted code**: pull requests are opened with the `gh` CLI, signed in with `gh auth login`.
 
 ## Client support
