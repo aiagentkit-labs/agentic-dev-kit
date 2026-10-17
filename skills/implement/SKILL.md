@@ -16,7 +16,7 @@ Resolve the source in this order:
 3. **Local file:** read the path the user supplied. Do not edit the original task file as part of loading it.
 4. **No request supplied:** ask for a tracker URL/ID, pasted text, or file path. Do not assume Azure DevOps.
 
-If a tracker is named but no usable integration is available, say so and offer pasted or exported text as a fallback. A generic MCP connection counts only when its exposed tools can perform the needed operation. Jira is not bundled as a connector; Jira end-to-end access requires a Jira MCP/CLI adapter in the user's client. Do not imply a Jira URL alone grants access.
+If a tracker is named but no usable integration is available, say so and offer pasted or exported text as a fallback. A generic MCP connection counts only when its exposed tools can perform the needed operation. This plugin configures Atlassian's hosted Rovo MCP server, but Jira access still requires the user to complete the client's Atlassian OAuth flow, select/authorize their site if prompted, and have permission to the issue. Do not imply a Jira URL alone grants access.
 
 Normalize every source into the task record described in [TASK-RECORD.md](TASK-RECORD.md): title, description, acceptance criteria, optional repro/context, source metadata, and available source capabilities. Preserve the source URL, key, or input file path when available. Do not invent missing acceptance criteria or provider records.
 
@@ -76,6 +76,12 @@ Identify source mode: tracker, pasted text, or local file. For a tracker, discov
 | Create child | Persist split tasks in the tracker |
 
 Only use capabilities actually exposed by the integration. A provider may be read-only. Do not block implementation because optional update/link capabilities are absent.
+
+### Detecting a tracker connection
+
+At run time, inspect the tools exposed to the current chat/session. Use tool names and descriptions to identify provider operations; do not assume a connection from the issue URL, ID shape, or a server name alone. Map only operations that are actually exposed to the capability table above. Before treating a tracker as connected, use its read-only get/fetch operation on the user-supplied issue and confirm it returns that issue. If the client does not expose a relevant tool, or the read fails because the server is disabled, unauthenticated, or lacks permission, treat the tracker as unavailable and offer pasted/exported task text. Never probe with a write.
+
+VS Code can expose MCP servers configured by the user, workspace, or installed plugins to the active chat when their tools are enabled. This plugin bundles the Azure DevOps MCP server and Atlassian's hosted Rovo MCP server in `mcp.json`. Installing the plugin configures the server but does not sign the user in or grant Jira site permissions. A user's separately configured Jira MCP server can also be used when it exposes the needed tools to the session.
 
 **Gate:** selected source and connection, or confirmation that the pasted/file text is the source. Tell the user which tracker operations are unavailable and what fallback applies.
 

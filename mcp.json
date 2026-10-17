@@ -7,6 +7,10 @@
       "headers": {
         "X-MCP-Toolsets": "wit,work,repos"
       }
+    },
+    "atlassian": {
+      "type": "streamable-http",
+      "url": "https://mcp.atlassian.com/v1/mcp"
     }
   }
 }

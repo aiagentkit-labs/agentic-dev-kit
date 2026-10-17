@@ -58,8 +58,12 @@ If a tool works in your terminal but the check says it won't run, VS Code is sti
 The plugin contains no credentials; everyone signs in with their own account.
 
 - **Azure DevOps MCP server**: VS Code prompts for a Microsoft Entra sign-in the first time a tool is used. Your Azure DevOps organization must be backed by Microsoft Entra ID.
-- **Fallback**: if the Azure DevOps MCP server can't sign in, `implement` switches to the `az` CLI, using `az login` or a personal access token you export as `AZURE_DEVOPS_EXT_PAT`. For Jira or another tracker, use an available adapter; without one, paste or export its task text.
+- **Azure DevOps**: if its MCP server can't sign in, `implement` switches to the `az` CLI, using `az login` or a personal access token you export as `AZURE_DEVOPS_EXT_PAT`.
+- **Jira / Atlassian**: the plugin configures Atlassian's hosted Rovo MCP server. VS Code should prompt you to authorize Atlassian on first use. Your account must have permission to the site and issue. Some enriched Rovo tool calls may consume Rovo credits. See Atlassian's [client setup](https://support.atlassian.com/atlassian-ai-gateway/docs/set-up-clients/) and [authentication](https://support.atlassian.com/atlassian-ai-gateway/docs/authentication-and-authorization/) guides if the prompt doesn't appear.
+- **Other trackers**: use a connected MCP/CLI adapter, or paste/export the task text.
 - **GitHub-hosted code**: pull requests are opened with the `gh` CLI, signed in with `gh auth login`.
+
+For tracker discovery, `implement` inspects MCP tools exposed to the current chat, maps only operations those tools actually provide, then verifies access with a read-only fetch of the supplied issue. An issue URL by itself is not a connection. This plugin configures Atlassian's hosted Rovo MCP server in `mcp.json`, but does not contain credentials or grant Jira permissions. If Atlassian tools are not exposed or authorized in the active chat, paste or export the issue text instead.
 
 ## Your first run
 
@@ -77,7 +81,7 @@ Other examples:
 /implement "Add CSV export to the reports page. Users can choose the columns and date range."
 ```
 
-The Jira example requires a Jira MCP/CLI adapter; a Jira URL alone does not provide access. If none is configured, export or paste the issue text instead. The skill can offer to save the agreed task as `work-items/<slug>.md`; see [task record format](../skills/implement/TASK-RECORD.md). A repository policy may still require a linked tracker issue before merge.
+The Jira example requires Atlassian sign-in and permission to the site and issue; a Jira URL alone does not grant access. The skill can offer to save the agreed task as `work-items/<slug>.md`; see [task record format](../skills/implement/TASK-RECORD.md). A repository policy may still require a linked tracker issue before merge.
 
 For a pasted request, use `/implement` followed by the task text. For a local file, use `/implement path/to/task.md`. `/ado-implement` remains available as the ADO-specific compatibility command.
 
