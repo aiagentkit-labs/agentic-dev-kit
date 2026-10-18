@@ -14,7 +14,7 @@ An [Agent Plugin](https://agent-plugins.org/) that bundles skills for planning a
 | `lint` | Runs and fixes the repo's linters and formatters on the files you touched, for .NET (`dotnet format`, analyzers, `.editorconfig`) and TypeScript/JavaScript (ESLint, Prettier, Biome), and sets up a baseline where a repo has none | Automatic when you mention linting or formatting, before commits in `implement` and `pr-review`, or `/lint` |
 | `grilling` | Stress-tests a plan or decision, one round of questions at a time | Automatic on "grill" phrases, or `/grilling` |
 | `grill-me` | A relentless interview to sharpen a plan or design | `/grill-me` |
-| `teach` | Teaches a new concept inside your workspace | `/teach` |
+| `teach` | Teaches a new concept using your project as context; `setup <topic>` initializes a learning workspace after approval | `/teach`, `/teach setup <topic>` |
 
 | Agent | What it does | Invocation |
 |---|---|---|
