@@ -85,4 +85,14 @@ The Jira example requires Atlassian sign-in and permission to the site and issue
 
 For a pasted request, use `/implement` followed by the task text. For a local file, use `/implement path/to/task.md`. `/ado-implement` remains available as the ADO-specific compatibility command.
 
+## Set up project-grounded teaching
+
+Open the project you want lessons grounded in, then run:
+
+```text
+/teach setup how Contoso works
+```
+
+The skill inspects relevant project docs/source, asks about your learning goal, and proposes files such as `MISSION.md`, `RESOURCES.md`, and a first lesson. It shows the paths and contents before writing; nothing is created until you approve. The paths are relative to the active project workspace, not the plugin installation. For another project, open that project and replace `Contoso` with the topic you want to learn.
+
 **Grill** mode asks the decisions; **teach** mode also explains why and checks your recall. See [Workflows](workflows.md) for every step.

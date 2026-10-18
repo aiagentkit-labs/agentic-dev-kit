@@ -1,23 +1,38 @@
 ---
 name: teach
-description: Teach the user a new skill or concept, within this workspace.
+description: Teach a new skill or concept in the current project workspace; use `setup <topic>` to initialize project-grounded learning files after user approval.
 disable-model-invocation: true
-argument-hint: "What would you like to learn about?"
+argument-hint: "What would you like to learn? Use setup <topic> to prepare this project for teaching."
 ---
 
 The user has asked you to teach them something. This is a stateful request - they intend to learn the topic over multiple sessions.
 
 ## Teaching Workspace
 
-Treat the current directory as a teaching workspace. Workspace paths (`./lessons/` and the rest) resolve from the directory `/teach` was run in; only the `*-FORMAT.md` links resolve from this skill's folder. The state of their learning is captured in this directory in several files:
+Treat the current workspace root as a teaching workspace. Workspace paths (`./lessons/` and the rest) resolve from the directory `/teach` was run in; only the `*-FORMAT.md` links resolve from this skill's folder. Confirm the workspace root before creating files when it is ambiguous. These are files in the user's project, not in the plugin installation. The state of their learning is captured here:
 
 - `MISSION.md`: A document capturing the _reason_ the user is interested in the topic. This should be used to ground all teaching. Use the format in [MISSION-FORMAT.md](./MISSION-FORMAT.md).
-- `./reference/*.html`: A directory of reference materials. These are the compressed learnings from the lessons - cheat sheets, reference algorithms, syntax, yoga poses, glossaries. They are the raw units of learning. They should be beautiful documents which print out well, and are designed for quick reference.
+- `./reference/*.html`: A directory of printable reference materials: cheat sheets, algorithms, syntax, and other compact summaries.
+- `GLOSSARY.md`: The canonical terminology for this teaching workspace. Use the format in [GLOSSARY-FORMAT.md](./GLOSSARY-FORMAT.md). Keep it at the workspace root so learning records can link to it.
 - `RESOURCES.md`: A list of resources which can be explored to ground your teaching in contextual knowledge, or to acquire knowledge and wisdom. Use the format in [RESOURCES-FORMAT.md](./RESOURCES-FORMAT.md).
 - `./learning-records/*.md`: A directory of learning records, which capture what the user has learned. These are loosely equivalent to architectural decision records in software development - they capture non-obvious lessons and key insights that may need to be revised later, or drive future sessions. These should be used to calculate the zone of proximal development. They are titled `0001-<dash-case-name>.md`, where the number increments each time. Use the format in [LEARNING-RECORD-FORMAT.md](./LEARNING-RECORD-FORMAT.md).
 - `./lessons/*.html`: A directory of lessons. A **lesson** is a single, self-contained HTML output that teaches one tightly-scoped thing tied to the mission. This is the primary unit of teaching in this workspace.
-- `./assets/*`: Reusable **components** shared across lessons. See [Assets](#assets).
+- `./assets/*`: Reusable **components** shared across lessons; see the Assets section below.
 - `NOTES.md`: A scratchpad for you to jot down user preferences, or working notes.
+
+## Set up a teaching workspace
+
+When the user invokes `/teach setup <topic>` (or asks to prepare this project for teaching), initialize the learning workspace in the current project. Do not silently assume the project root: confirm it if the active workspace has multiple roots or the invocation directory is unclear.
+
+1. Inspect project context before drafting content: README, docs, folder structure, manifests, and a small set of relevant source/tests for the requested topic. Do not read the whole repository indiscriminately.
+2. Check which learning files already exist. Read and preserve them; never replace existing missions, resources, lessons, references, records, notes, or assets without asking.
+3. Ask why the user wants to learn the topic and what they want to be able to do. Use those answers to draft `MISSION.md` with the [mission format](./MISSION-FORMAT.md).
+4. Research trustworthy sources and draft `RESOURCES.md` with the [resources format](./RESOURCES-FORMAT.md). Clearly separate project sources from external references and note gaps.
+5. Propose the initial lesson and any useful reference/glossary material. Create `lessons/` and `reference/` only when writing their first files. Create `GLOSSARY.md` at the workspace root only when the topic has terminology worth retaining.
+6. Create `learning-records/` only after the user demonstrates learning or discloses prior knowledge, as defined by [LEARNING-RECORD-FORMAT.md](./LEARNING-RECORD-FORMAT.md). Create `assets/` only for components that will be reused by multiple lessons. Create `NOTES.md` only for teaching preferences or useful work notes.
+7. Before writing, show the file list, paths, and proposed contents. Ask whether to proceed. Check `.gitignore` and explain whether the new materials will be tracked; do not edit ignore rules unless the user asks.
+
+After setup, `/teach <topic>` reads the workspace mission, resources, glossary, relevant prior lessons/records, and the target project's relevant files to prepare the next lesson. Each session should save a lesson only when it actually produces one; a conversational explanation alone does not imply files were created.
 
 ## Philosophy
 
