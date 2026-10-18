@@ -9,30 +9,47 @@ The user has asked you to teach them something. This is a stateful request - the
 
 ## Teaching Workspace
 
-Treat the current workspace root as a teaching workspace. Workspace paths (`./lessons/` and the rest) resolve from the directory `/teach` was run in; only the `*-FORMAT.md` links resolve from this skill's folder. Confirm the workspace root before creating files when it is ambiguous. These are files in the user's project, not in the plugin installation. The state of their learning is captured here:
+The current project/workspace root is the **project context**, not the learning-artifact directory. Keep the project's existing structure intact. Each learning track lives under `./learning/<topic-slug>/`; only the `*-FORMAT.md` links below resolve from this skill's folder. Confirm the project root if it is ambiguous. Learning artifacts belong to the user's project, never the plugin installation.
 
-- `MISSION.md`: A document capturing the _reason_ the user is interested in the topic. This should be used to ground all teaching. Use the format in [MISSION-FORMAT.md](./MISSION-FORMAT.md).
-- `./reference/*.html`: A directory of printable reference materials: cheat sheets, algorithms, syntax, and other compact summaries.
-- `GLOSSARY.md`: The canonical terminology for this teaching workspace. Use the format in [GLOSSARY-FORMAT.md](./GLOSSARY-FORMAT.md). Keep it at the workspace root so learning records can link to it.
-- `RESOURCES.md`: A list of resources which can be explored to ground your teaching in contextual knowledge, or to acquire knowledge and wisdom. Use the format in [RESOURCES-FORMAT.md](./RESOURCES-FORMAT.md).
-- `./learning-records/*.md`: A directory of learning records, which capture what the user has learned. These are loosely equivalent to architectural decision records in software development - they capture non-obvious lessons and key insights that may need to be revised later, or drive future sessions. These should be used to calculate the zone of proximal development. They are titled `0001-<dash-case-name>.md`, where the number increments each time. Use the format in [LEARNING-RECORD-FORMAT.md](./LEARNING-RECORD-FORMAT.md).
-- `./lessons/*.html`: A directory of lessons. A **lesson** is a single, self-contained HTML output that teaches one tightly-scoped thing tied to the mission. This is the primary unit of teaching in this workspace.
-- `./assets/*`: Reusable **components** shared across lessons; see the Assets section below.
-- `NOTES.md`: A scratchpad for you to jot down user preferences, or working notes.
+For a track such as `contoso`, use this structure:
+
+```text
+learning/contoso/
+	MISSION.md
+	RESOURCES.md
+	GLOSSARY.md                 # when the topic has terminology worth keeping
+	NOTES.md                    # only when useful
+	lessons/                    # created when the first lesson is written
+	reference/                  # created when the first reference is written
+	learning-records/           # created when the first record is earned
+	assets/                     # created when a component will be reused
+```
+
+- `MISSION.md`: why the user is learning and what success looks like. Ground lessons in this. Use [MISSION-FORMAT.md](./MISSION-FORMAT.md).
+- `RESOURCES.md`: trusted project and external sources, annotated with what they cover. Use [RESOURCES-FORMAT.md](./RESOURCES-FORMAT.md).
+- `GLOSSARY.md`: canonical topic terminology at the track root. Use [GLOSSARY-FORMAT.md](./GLOSSARY-FORMAT.md).
+- `lessons/*.html`: short, self-contained lessons; this is the primary teaching artifact.
+- `reference/*.html`: printable, compact references such as cheat sheets, algorithms, or syntax summaries.
+- `learning-records/*.md`: earned records of demonstrated understanding, prior knowledge, corrections, or mission changes. Use [LEARNING-RECORD-FORMAT.md](./LEARNING-RECORD-FORMAT.md).
+- `assets/*`: reusable components shared by multiple lessons.
+- `NOTES.md`: teaching preferences or working notes.
+
+All lesson links to references/assets and all cross-links between learning records must be relative to this track directory, so moving one track does not break another.
 
 ## Set up a teaching workspace
 
-When the user invokes `/teach setup <topic>` (or asks to prepare this project for teaching), initialize the learning workspace in the current project. Do not silently assume the project root: confirm it if the active workspace has multiple roots or the invocation directory is unclear.
+When the user invokes `/teach setup <topic>` (or asks to prepare this project for teaching), initialize a learning track in `./learning/<topic-slug>/`, leaving the project root and source files untouched. For example, `/teach setup how Contoso works` uses `learning/contoso/`. Do not silently assume the project root: confirm it if the active workspace has multiple roots or the invocation directory is unclear. If a matching track already exists, use it; do not create a duplicate.
 
 1. Inspect project context before drafting content: README, docs, folder structure, manifests, and a small set of relevant source/tests for the requested topic. Do not read the whole repository indiscriminately.
-2. Check which learning files already exist. Read and preserve them; never replace existing missions, resources, lessons, references, records, notes, or assets without asking.
-3. Ask why the user wants to learn the topic and what they want to be able to do. Use those answers to draft `MISSION.md` with the [mission format](./MISSION-FORMAT.md).
-4. Research trustworthy sources and draft `RESOURCES.md` with the [resources format](./RESOURCES-FORMAT.md). Clearly separate project sources from external references and note gaps.
-5. Propose the initial lesson and any useful reference/glossary material. Create `lessons/` and `reference/` only when writing their first files. Create `GLOSSARY.md` at the workspace root only when the topic has terminology worth retaining.
-6. Create `learning-records/` only after the user demonstrates learning or discloses prior knowledge, as defined by [LEARNING-RECORD-FORMAT.md](./LEARNING-RECORD-FORMAT.md). Create `assets/` only for components that will be reused by multiple lessons. Create `NOTES.md` only for teaching preferences or useful work notes.
-7. Before writing, show the file list, paths, and proposed contents. Ask whether to proceed. Check `.gitignore` and explain whether the new materials will be tracked; do not edit ignore rules unless the user asks.
+2. Derive a lowercase, dash-case topic slug. Show the resolved project root and proposed track directory. If the slug is ambiguous or collides with an unrelated track, ask the user to choose one.
+3. Inspect existing artifacts under that track. Read and preserve them; never replace existing missions, resources, lessons, references, records, notes, or assets without asking.
+4. Ask why the user wants to learn the topic and what they want to be able to do. Draft `learning/<topic-slug>/MISSION.md` with [MISSION-FORMAT.md](./MISSION-FORMAT.md).
+5. Research trustworthy project and external sources; draft `learning/<topic-slug>/RESOURCES.md` with [RESOURCES-FORMAT.md](./RESOURCES-FORMAT.md). Clearly separate project sources from external references and note gaps.
+6. Propose the first lesson and useful reference/glossary material. Create `learning/<topic-slug>/lessons/` and `learning/<topic-slug>/reference/` only when writing their first files. Create the track's `GLOSSARY.md` only when the topic has terminology worth retaining.
+7. Inside `learning/<topic-slug>/`, create `learning-records/` only after the user demonstrates learning or discloses prior knowledge, as defined by [LEARNING-RECORD-FORMAT.md](./LEARNING-RECORD-FORMAT.md). Create `assets/` only for components reused by multiple lessons. Create `NOTES.md` only for teaching preferences or useful notes.
+8. Before writing, show every proposed path and content. Ask whether to proceed. Check `.gitignore` and explain whether the materials will be tracked; do not edit ignore rules unless asked.
 
-After setup, `/teach <topic>` reads the workspace mission, resources, glossary, relevant prior lessons/records, and the target project's relevant files to prepare the next lesson. Each session should save a lesson only when it actually produces one; a conversational explanation alone does not imply files were created.
+After setup, `/teach <topic>` resolves the matching track under `learning/`, reads its mission, resources, glossary, relevant prior lessons/records, and inspects relevant project files to prepare the next lesson. If no matching track exists, ask whether to set it up or teach conversationally without writing files. Each session saves a lesson only when it actually produces one; a conversational explanation alone does not imply files were created.
 
 ## Philosophy
 
@@ -61,7 +78,7 @@ Fluency can give the user an illusory sense of mastery, but storage strength is 
 
 ## Lessons
 
-A lesson is the main thing you produce: the unit in which knowledge and skills reach the user. Each lesson is one self-contained HTML file, saved to `./lessons/` and titled `0001-<dash-case-name>.html` where the number increments each time.
+A lesson is the main thing you produce: the unit in which knowledge and skills reach the user. Each lesson is one self-contained HTML file, saved to `learning/<topic-slug>/lessons/` and titled `0001-<dash-case-name>.html` where the number increments within that topic track.
 
 A lesson should be **beautiful**, with clean, readable typography and layout, since the user will return to these later to review. Think Tufte.
 
@@ -69,7 +86,7 @@ The lesson should be short, and completable very quickly. Learners' working memo
 
 If possible, open the lesson file for the user by running a CLI command.
 
-Each lesson should link via HTML anchors to other lessons and reference documents.
+Each lesson should link via HTML anchors to other lessons and reference documents in the same topic track, using paths relative to `learning/<topic-slug>/`.
 
 Each lesson should recommend a primary source for the user to read or watch. This should be the most high-quality, high-trust resource you found on the topic.
 
@@ -77,21 +94,21 @@ Each lesson should contain a reminder to ask followup questions to the agent. Th
 
 ## Assets
 
-Lessons are built from reusable **components**, stored in `./assets/`: stylesheets, quiz widgets, simulators, diagram helpers, and anything else a second lesson could reuse.
+Lessons are built from reusable **components**, stored in the track's `./assets/`: stylesheets, quiz widgets, simulators, diagram helpers, and anything else a second lesson could reuse.
 
 Reuse is the default, not the exception. Before authoring a lesson, read `./assets/` and build from the components already there. When a lesson needs something new and reusable, write it as a component in `./assets/` and link to it; never inline code a future lesson would duplicate.
 
-A shared stylesheet is the first component every workspace earns: every lesson links it, so the lessons look like one consistent course rather than a pile of one-offs. As the workspace grows, so should the component library.
+A shared stylesheet is the first component a track earns: every lesson links it, so the lessons look like one consistent course rather than a pile of one-offs. As the track grows, so should the component library.
 
 ## The Mission
 
 Every lesson should be tied into the mission - the reason that the user is interested in learning about the topic.
 
-If the user is unclear about the mission, or the `MISSION.md` is not populated, your first job should be to question the user on why they want to learn this.
+If the user is unclear about the mission, or the track's `MISSION.md` is not populated, your first job should be to question the user on why they want to learn this.
 
 Failing to understand the mission will mean knowledge acquisition is not grounded in real-world goals. Lessons will feel too abstract. You will have no way of judging what the user should do next.
 
-Missions may change as the user develops more skills and knowledge. This is normal - make sure to update the `MISSION.md` and add a learning record to capture the change. Confirm with the user before changing the mission.
+Missions may change as the user develops more skills and knowledge. This is normal - make sure to update the track's `MISSION.md` and add a learning record to capture the change. Confirm with the user before changing the mission.
 
 ## Zone Of Proximal Development
 
@@ -99,7 +116,7 @@ Each lesson, the user should always feel as if they are being challenged 'just e
 
 The user may specify an exact thing they want to learn. If they don't, figure out their zone of proximal development by:
 
-- Reading their `learning-records`
+- Reading `learning/<topic-slug>/learning-records/` for the current track
 - Figuring out the right thing to teach them based on their mission
 - Teach the most relevant thing that fits in their zone of proximal development
 
@@ -107,7 +124,7 @@ The user may specify an exact thing they want to learn. If they don't, figure ou
 
 Lessons should be designed around a skill the user is going to learn. The knowledge in the lesson should be only what's required to acquire that skill. You teach the knowledge first, then get the user to practice the skills via an interactive feedback loop.
 
-Knowledge should first be gathered from trusted resources. Use `RESOURCES.md` to keep track of them. Lessons should be littered with citations - links to external resources to back up any claim made. This increases the trustworthiness of the lesson.
+Knowledge should first be gathered from trusted resources. Use `learning/<topic-slug>/RESOURCES.md` to keep track of them. Lessons should be littered with citations - links to external resources to back up any claim made. This increases the trustworthiness of the lesson.
 
 For acquiring knowledge, difficulty is the enemy. It eats working memory you need for understanding.
 
@@ -151,5 +168,6 @@ Some learning topics lend themselves to reference:
 Glossaries, in particular, are an essential reference. Once one is created, it should be adhered to in every lesson.
 
 ## `NOTES.md`
+Store this file at `learning/<topic-slug>/NOTES.md`, alongside that topic's mission and resources.
 
 The user will sometimes express preferences of how they want to be taught, or things you should keep in mind. This is the place to record those preferences, so you can refer back to them when designing lessons or working with the user.
