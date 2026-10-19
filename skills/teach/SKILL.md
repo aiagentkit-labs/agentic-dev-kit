@@ -7,6 +7,8 @@ argument-hint: "What would you like to learn? Use setup <topic> to prepare this 
 
 The user has asked you to teach them something. This is a stateful request - they intend to learn the topic over multiple sessions.
 
+This skill owns persistent learning artifacts only when the user explicitly invokes `/teach` for setup or lesson work. If another workflow uses Teach mode for explanations, that workflow may read an existing track but must not create or update files from this skill.
+
 ## Teaching Workspace
 
 The current project/workspace root is the **project context**, not the learning-artifact directory. Keep the project's existing structure intact. Each learning track lives under `./learning/<topic-slug>/`; only the `*-FORMAT.md` links below resolve from this skill's folder. Confirm the project root if it is ambiguous. Learning artifacts belong to the user's project, never the plugin installation.

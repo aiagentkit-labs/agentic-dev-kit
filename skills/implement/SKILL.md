@@ -50,6 +50,12 @@ Every gate is an interview round:
 - Use the question tool when the client provides one; otherwise use the format below. Use the 📘 line in teach mode only, and include Why, Source, and Check on every teach-mode question.
 - Grill mode asks for decisions. Teach mode also explains why, cites a relevant source, and asks a recall question. The user can switch modes at any gate.
 
+### Teach mode reuses learning materials; it does not create lessons
+
+When this workflow is in Teach mode, first look for a relevant existing track under `learning/<topic-slug>/` in the target repository. Use its `MISSION.md` to understand the learner's goal; consult its `RESOURCES.md`, `GLOSSARY.md`, `reference/`, relevant `lessons/`, and `learning-records/` to tailor explanations and recall questions. Read only material relevant to the current task. The task specification, repository source, and current controls remain authoritative if learning materials conflict with them.
+
+Teach mode here is conversational coaching during implementation. Do not create or modify `learning/`, lessons, references, learning records, glossary, mission, resources, notes, or assets during this workflow. If no relevant track exists, teach from the task, repository, and trusted sources without scaffolding one. Mention `/teach setup <topic>` only as an optional separate follow-up; create learning artifacts only when the user explicitly invokes `/teach` to set up a track or create a lesson.
+
 ```markdown
 **Step N/10 · <step name> · Round k**
 
