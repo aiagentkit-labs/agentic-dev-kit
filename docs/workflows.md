@@ -2,6 +2,8 @@
 
 Every skill works the same way: it gathers facts itself, then stops at a **gate** where you decide. Nothing is pushed, posted, or written to a tracker or shared host without your yes.
 
+In `implement`, **Teach** mode adds explanations, sources, and recall questions at gates. It can reuse an existing `learning/<topic>/` track read-only, but it does not create lessons or learning files. Use `/teach setup <topic>` or ask `/teach` for a lesson when you want persistent learning materials.
+
 ## implement: task to pull request
 
 ```mermaid
