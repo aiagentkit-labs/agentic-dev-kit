@@ -85,6 +85,12 @@ The Jira example requires Atlassian sign-in and permission to the site and issue
 
 For a pasted request, use `/implement` followed by the task text. For a local file, use `/implement path/to/task.md`. `/ado-implement` remains available as the ADO-specific compatibility command.
 
+## Use GitHub Spec Kit for Spec-Driven Development
+
+Run `/spec-kit` to get help adopting GitHub's [Spec Kit](https://github.com/github/spec-kit). The skill guides setup but does not bundle or replace Spec Kit: its separately installed `specify` CLI generates and manages the project's `/speckit-*` skills and files. Review the official [installation](https://github.github.io/spec-kit/installation.html), [quickstart](https://github.github.io/spec-kit/quickstart.html), and [Copilot integration](https://github.github.io/spec-kit/integrations/copilot.html) docs for current prerequisites and commands.
+
+When a Spec Kit feature is ready for delivery, provide its feature directory to `/implement`. `implement` will use the selected specification, plan, and task list as context, agree on testable acceptance criteria, then run its normal test-first, review, and pull-request workflow. Spec Kit artifacts remain read-only unless you explicitly request changes.
+
 ## Set up project-grounded teaching
 
 Open the project you want lessons grounded in, then run:
