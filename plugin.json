@@ -2,11 +2,11 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "agentic-dev-kit",
   "version": "0.7.0",
-  "description": "Skills for planning and shipping work with AI agents: start from a tracker, pasted request, or task file; implement test-first; review; and open a pull request through a guided interview.",
+  "description": "Skills for planning and shipping work with AI agents: adopt GitHub Spec Kit, start from a tracker, pasted request, or task file; implement test-first; review; and open a pull request through a guided interview.",
   "author": {
     "name": "puttagunta"
   },
   "repository": "https://github.com/aiagentkit-labs/agentic-dev-kit",
   "license": "MIT",
-  "keywords": ["azure-devops", "work-items", "pull-requests", "testing", "accessibility", "playwright", "linting", "eslint", "dotnet", "planning", "learning", "skills"]
+  "keywords": ["spec-driven-development", "github-spec-kit", "azure-devops", "work-items", "pull-requests", "testing", "accessibility", "playwright", "linting", "eslint", "dotnet", "planning", "learning", "skills"]
 }

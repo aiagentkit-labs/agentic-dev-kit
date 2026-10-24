@@ -12,6 +12,7 @@ An [Agent Plugin](https://agent-plugins.org/) that bundles skills for planning a
 | `pr-review` | Interview-driven PR review, from either side: address the comments on your PR until every thread is settled, or review someone else's PR and post comments and a vote | Automatic when you mention PR comments or reviewing a PR, or `/pr-review` |
 | `branch-policies` | Reads and sets branch policies on Azure Repos or GitHub with a **team** or **solo** profile; solo relaxes only who approves, for developers with no one to approve their PRs | Automatic when you mention branch policies or working alone, or `/branch-policies` |
 | `lint` | Runs and fixes the repo's linters and formatters on the files you touched, for .NET (`dotnet format`, analyzers, `.editorconfig`) and TypeScript/JavaScript (ESLint, Prettier, Biome), and sets up a baseline where a repo has none | Automatic when you mention linting or formatting, before commits in `implement` and `pr-review`, or `/lint` |
+| `spec-kit` | Helps set up GitHub Spec Kit for Spec-Driven Development and hands selected feature artifacts to `implement` | Automatic when you mention Spec Kit, SDD, or `/speckit-*`, or `/spec-kit` |
 | `grilling` | Stress-tests a plan or decision, one round of questions at a time | Automatic on "grill" phrases, or `/grilling` |
 | `grill-me` | A relentless interview to sharpen a plan or design | `/grill-me` |
 | `teach` | Teaches a new concept using your project as context; `setup <topic>` initializes a learning workspace after approval | `/teach`, `/teach setup <topic>` |

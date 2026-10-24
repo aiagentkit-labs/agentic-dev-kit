@@ -27,6 +27,7 @@ Each skill works in rounds. At every gate the agent shows what it found and what
 | `lint` | Runs and fixes the repo's linters and formatters on the files you touched, and sets up a baseline where there is none |
 | `branch-policies` | Reads and sets branch policies with a **team** or **solo** profile |
 | `pr` | Writes a PR body: summary, before and after evidence, merge danger |
+| `spec-kit` | Helps set up GitHub Spec Kit for Spec-Driven Development and hands selected feature artifacts to `implement` |
 | `grilling`, `grill-me` | Stress-test a plan or decision with rounds of questions |
 | `teach` | Teaches a new concept inside your workspace |
 
